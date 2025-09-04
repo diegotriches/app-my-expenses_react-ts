@@ -1,24 +1,27 @@
+import type { Transacao } from '../App';
+
 import './Resumo.css'
 
-import React from "react";
+function Resumo({ transacao }: { transacao: Transacao[] }) {
+  const entradas = transacao
+    .filter((t) => t.tipo === "Entrada")
+    .reduce((acc, t) => acc + t.valor, 0);
 
-interface Props {
-  entradas: number;
-  saidas: number;
-  saldo: number;
-}
+  const saidas = transacao
+    .filter((t) => t.tipo === "Saída")
+    .reduce((acc, t) => acc + t.valor, 0);
 
-const Resumo: React.FC<Props> = ({ entradas, saidas, saldo }) => {
+  const saldo = entradas - saidas;
+
   return (
-    <div className="resumo">
-      <h3>Resumo Financeiro</h3>
-      <p className="entrada">Entradas: R$ {entradas.toFixed(2)}</p>
-      <p className="saida">Saídas: R$ {Math.abs(saidas).toFixed(2)}</p>
-      <p className={saldo >= 0 ? "positivo" : "negativo"}>
+    <div id='resumo'>
+      <h2>Resumo Financeiro</h2>
+      <p id='entradas'>Entradas: R$ {entradas.toFixed(2)}</p>
+      <p id='saidas'>Saídas: R$ {saidas.toFixed(2)}</p>
+      <p style={{ fontWeight: "bold", color: saldo >= 0 ? "green" : "red" }}>
         Saldo: R$ {saldo.toFixed(2)}
       </p>
     </div>
   );
-};
-
-export default Resumo;
+}
+ export default Resumo
