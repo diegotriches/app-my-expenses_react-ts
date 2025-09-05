@@ -1,4 +1,4 @@
-import type { Transacao } from "../App";
+import type { Transacao } from "../types/transacao";
 
 import './Resumo.css'
 

@@ -1,22 +1,25 @@
 nav {
     display: flex;
-    background-color: #fff;
-    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    color: #fff;
+    border-radius: 8px;
+    gap: 10px;
+    background-color: #79dc68;
 }
 
 nav h1 {
-    color: black;
-    padding: 10px;
+    margin-left: 20px;
     font-size: 1rem;
 }
 
 nav a {
     text-decoration: none;
-    padding: 20px;
-    color: black;
+    color: #fff;
 }
 
 nav a.active {
+    text-decoration: underline;
     font-weight: bold;
-    color: blue;
+    color: #646cff;
 }
