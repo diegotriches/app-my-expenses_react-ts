@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
+import Relatorios from "./routes/Relatorios";
 
 import './App.css'
 
@@ -17,14 +20,17 @@ function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
 
   return (
-    <div>
-      <Navbar transacoes={transacoes} setTransacoes={setTransacoes} />
-      <h1>App de Finanças</h1>
-      <Movimentacao
-      transacoes={transacoes}
-      setTransacoes={setTransacoes}
-      />
-    </div>
+    <BrowserRouter>
+      <Navbar />
+    <Routes>
+                <Route path="/" element={<Home transacoes={transacoes}/>} />
+                <Route
+                    path="/movimentacao"
+                    element={<Movimentacao transacoes={transacoes} setTransacoes={setTransacoes} />}
+                />
+                <Route path="/relatorios" element={<Relatorios />} />
+            </Routes>
+    </BrowserRouter>
   );
 }
 

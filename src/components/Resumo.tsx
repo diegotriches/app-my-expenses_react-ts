@@ -1,27 +1,30 @@
-import type { Transacao } from '../App';
+import type { Transacao } from "../App";
 
 import './Resumo.css'
 
-function Resumo({ transacao }: { transacao: Transacao[] }) {
-  const entradas = transacao
+interface Props {
+  transacoes: Transacao[];
+}
+
+function Resumo({ transacoes }: Props) {
+  const entradas = transacoes
     .filter((t) => t.tipo === "Entrada")
     .reduce((acc, t) => acc + t.valor, 0);
 
-  const saidas = transacao
+  const saidas = transacoes
     .filter((t) => t.tipo === "Saída")
     .reduce((acc, t) => acc + t.valor, 0);
 
   const saldo = entradas - saidas;
 
   return (
-    <div id='resumo'>
-      <h2>Resumo Financeiro</h2>
-      <p id='entradas'>Entradas: R$ {entradas.toFixed(2)}</p>
-      <p id='saidas'>Saídas: R$ {saidas.toFixed(2)}</p>
-      <p style={{ fontWeight: "bold", color: saldo >= 0 ? "green" : "red" }}>
-        Saldo: R$ {saldo.toFixed(2)}
-      </p>
+    <div id="resumo-container">
+      <h2>Resumo</h2>
+      <p id="entradas">Entradas: R$ {entradas.toFixed(2)}</p>
+      <p id="saidas">Saídas: R$ {saidas.toFixed(2)}</p>
+      <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
     </div>
   );
 }
- export default Resumo
+
+export default Resumo;

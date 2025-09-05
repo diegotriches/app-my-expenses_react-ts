@@ -1,13 +1,31 @@
-#resumo {
-    padding: 20;
-    background: #f5f5f5;
-    border-radius: 8;
+#resumo-container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  border-radius: 5px;
 }
 
 #entradas {
-    color: green;
+  color: green;
+  font-weight: bold;
 }
 
 #saidas {
-    color: red;
+  color: red;
+  font-weight: bold;
+}
+
+#positivo {
+  color: green;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+#negativo {
+  color: red;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
