@@ -1,9 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { categoriasEntrada, categoriasSaida, adicionarCategoria } from '../types/categorias';
+
+import './Categorias.css'
 
 function Categorias() {
     const [tipo, setTipo] = useState<"Entrada" | "Saída">("Entrada");
     const [novaCategoria, setNovaCategoria] = useState("");
+    const navigate = useNavigate(); // Hook para navegar entre a página de criar novas categorias
 
     const handleAdicionar = () => {
         if (novaCategoria.trim()) {
@@ -15,37 +19,44 @@ function Categorias() {
 
     return (
         <div>
-            <h2>Gerenciar Categorias</h2>
+            <div id="add-categoria">
+                <button onClick={() => navigate("/movimentacao")}>← Voltar</button>
 
-            <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
-                <option value="Entrada">Entrada</option>
-                <option value="Saída">Saída</option>
-            </select>
+                <h2>Gerenciar Categorias</h2>
 
-            <input
-                type="text"
-                placeholder='Nova categoria'
-                value={novaCategoria}
-                onChange={(e) => setNovaCategoria(e.target.value)}
-            />
+                <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
+                    <option value="Entrada">Entrada</option>
+                    <option value="Saída">Saída</option>
+                </select>
 
-            <button onClick={handleAdicionar}>Adicionar</button>
+                <input
+                    type="text"
+                    placeholder='Nova categoria'
+                    value={novaCategoria}
+                    onChange={(e) => setNovaCategoria(e.target.value)}
+                />
 
-            <h3>Categorias de Entrada</h3>
+                <button onClick={handleAdicionar}>+</button>
+            </div>
 
-            <ul>
-                {categoriasEntrada.map((cat) => (
-                    <li key={cat}>{cat}</li>
-                ))}
-            </ul>
+            <div id="categoria-container">
+                <h3>Categorias de Entrada</h3>
 
-            <h3>Categorias de Saída</h3>
+                <ul>
+                    {categoriasEntrada.map((cat) => (
+                        <li key={cat}>{cat}</li>
+                    ))}
+                </ul>
 
-            <ul>
-                {categoriasSaida.map((cat) => (
-                    <li key={cat}>{cat}</li>
-                ))}
-            </ul>
+                <h3>Categorias de Saída</h3>
+
+                <ul>
+                    {categoriasSaida.map((cat) => (
+                        <li key={cat}>{cat}</li>
+                    ))}
+                </ul>
+            </div>
+
         </div>
     );
 }
