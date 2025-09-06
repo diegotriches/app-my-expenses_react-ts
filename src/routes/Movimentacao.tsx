@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import type { Transacao } from '../types/transacao';
 import { categoriasEntrada, categoriasSaida } from '../types/categorias';
 
+import { BsFunnel, BsFunnelFill, BsPlusCircle, BsFloppy2Fill, BsPencil } from "react-icons/bs";
+
 import './Movimentacao.css'
 
 interface Props {
@@ -20,30 +22,58 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
 
     const [filtroData, setFiltroData] = useState(""); // Filtro para a data da movimentação feita
     const [filtroTipo, setFiltroTipo] = useState<"" | "Entrada" | "Saída">(""); // Filtro para o tipo de movimentação feita
-    const [filtroValorMin, setValorMin] = useState(""); // Filtro para os valores mínimos das movimentações feitas
-    const [filtroValorMax, setValorMax] = useState(""); // Filtro para os valores máximos das movimentações feitas
+    const [filtroValorMin, setFiltroValorMin] = useState(""); // Filtro para os valores mínimos das movimentações feitas
+    const [filtroValorMax, setFiltroValorMax] = useState(""); // Filtro para os valores máximos das movimentações feitas
     const [filtroCategoria, setFiltroCategoria] = useState(""); // Filtro para a categoria de movimentação feita
+
+    const [mostrarFiltro, setMostrarFiltro] = useState(true); // Opção para mostrar ou esconder os filtros
+
+    const [editandoId, setEditandoId] = useState<number | null>(null);
 
     const navigate = useNavigate(); // Hook para navegação - utilizado para navegar entre a página de criar categorias
 
-    const adicionarTransacao = () => { // Adiciona a transação
-        if (!descricao || !valor || !categoria) return; // Verifica se as informações foram preenchidas? VERIFICAR
-
-        const novaTransacao: Transacao = { // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
-            id: Date.now(),
-            data,
-            tipo,
-            descricao,
-            valor: Number(valor),
-            categoria,
-        };
-
-        setTransacoes([...transacoes, novaTransacao]); // Armazena a nova transação dentro do Array de transações, sem sobrepôr as anteriores
-
+    const limparCampos = () => {
+        setTipo('Entrada'); // Reseta o campo Entrada para receber novos dados
         setData(""); // Reseta o campo Data para receber novos dados
         setDescricao(""); // Reseta o campo Descrição para receber novos dados
         setValor(""); // Reseta o campo Valor para receber novos dados
-        setCategoria("") // Reseta o campo Categoria para receber novos dados
+        setCategoria(""); // Reseta o campo Categoria para receber novos dados
+        setEditandoId(null);
+    };
+
+    const adicionarOuEditarTransacao = () => { // Adiciona a transação
+        if (!data || !descricao || !valor || !categoria) return; // Verifica se as informações foram preenchidas? VERIFICAR
+
+        if (editandoId) {
+            const transacoesAtualizadas = transacoes.map((t) => t.id === editandoId ? { ...t, tipo, descricao, valor: Number(valor), categoria, data } : t);
+            setTransacoes(transacoesAtualizadas);
+
+        } else {
+            const novaTransacao: Transacao = { // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
+                id: Date.now(),
+                data,
+                tipo,
+                descricao,
+                valor: Number(valor),
+                categoria,
+            };
+
+            setTransacoes([...transacoes, novaTransacao]); // Armazena a nova transação dentro do Array de transações, sem sobrepôr as anteriores
+        }
+
+        limparCampos();
+    };
+
+    const iniciarEdicao = (id: number) => {
+        const transacao = transacoes.find((t) => t.id === id);
+        if (!transacao) return;
+
+        setEditandoId(transacao.id);
+        setData(transacao.data);
+        setTipo(transacao.tipo);
+        setDescricao(transacao.descricao);
+        setValor(transacao.valor.toString());
+        setCategoria(transacao.categoria);
     };
 
     const categoriasDisponiveis = tipo === "Entrada" ? categoriasEntrada : categoriasSaida;
@@ -61,7 +91,7 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
     return (
         <>
             <div id='add-mov'>
-                <h3>Adicionar Movimentação</h3>
+                <h3>{editandoId ? "Editar Movimentação" : "Adicionar Movimentação"}</h3>
 
                 <input
                     type="date"
@@ -97,57 +127,78 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
                     ))}
                 </select>
 
-                <button onClick={adicionarTransacao}>Adicionar</button>
+                <button onClick={adicionarOuEditarTransacao}>
+                    {editandoId ? <BsFloppy2Fill /> : <BsPlusCircle />}
+                </button>
+
+                {editandoId && <button onClick={limparCampos}>Cancelar</button>}
 
                 <button onClick={() => navigate("/categorias")}>Categorias</button>
-
             </div>
 
-            <div className="filtros">
+            <button onClick={() => setMostrarFiltro(!mostrarFiltro)}>
+                {mostrarFiltro ? <BsFunnel /> : <BsFunnelFill />}
+            </button>
+            {mostrarFiltro && (
+                <div className="filtros">
 
-                <h3>Filtros</h3>
+                    <h3>Filtros</h3>
 
-                <input
-                    type="date"
-                    value={filtroData}
-                    onChange={(e) => setFiltroData(e.target.value)}
-                />
+                    <input
+                        type="date"
+                        value={filtroData}
+                        onChange={(e) => setFiltroData(e.target.value)}
+                    />
 
-                <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value as "" | "Entrada" | "Saída")}>
-                    <option value="">Todos os tipos</option>
-                    <option value="Entrada">Entradas</option>
-                    <option value="Saída">Saídas</option>
-                </select>
+                    <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value as "" | "Entrada" | "Saída")}>
+                        <option value="">Todos os tipos</option>
+                        <option value="Entrada">Entradas</option>
+                        <option value="Saída">Saídas</option>
+                    </select>
 
-                <input
-                    type="text"
-                    value={filtroCategoria}
-                    onChange={(e) => setFiltroCategoria(e.target.value)}
-                />
+                    <input
+                        type="text"
+                        placeholder='Categoria'
+                        value={filtroCategoria}
+                        onChange={(e) => setFiltroCategoria(e.target.value)}
+                    />
 
-                <input
-                    type="number"
-                    placeholder='Valor mínimo'
-                    value={filtroValorMin}
-                    onChange={(e) => setValorMin(e.target.value)}
-                />
-                
-                <input
-                    type="number"
-                    placeholder='Valor máximo'
-                    value={filtroValorMax}
-                    onChange={(e) => setValorMax(e.target.value)}
-                />
+                    <input
+                        type="number"
+                        placeholder='Valor mínimo'
+                        value={filtroValorMin}
+                        onChange={(e) => setFiltroValorMin(e.target.value)}
+                    />
 
-            </div>
+                    <input
+                        type="number"
+                        placeholder='Valor máximo'
+                        value={filtroValorMax}
+                        onChange={(e) => setFiltroValorMax(e.target.value)}
+                    />
+
+                    <button
+                        onClick={() => {
+                            setFiltroData("");
+                            setFiltroTipo("");
+                            setFiltroValorMin("");
+                            setFiltroValorMax("");
+                            setFiltroCategoria("");
+                        }}
+                    >
+                        Limpar
+                    </button>
+                </div>
+            )}
 
             <div id="mov-list">
                 <h3>Lista de Movimentação</h3>
 
                 <ul>
-                    {transacoes.map((t, index) => (
-                        <li key={index}>
+                    {transacoesFiltradas.map((t) => (
+                        <li key={t.id}>
                             ID: {t.id} || Data: {t.data} - {t.tipo} - {t.descricao} - R${t.valor.toFixed(2)} ({t.categoria})
+                            <button onClick={() => iniciarEdicao(t.id)}><BsPencil /></button>
                         </li>
                     ))}
                 </ul>

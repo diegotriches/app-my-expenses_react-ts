@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categoriasEntrada, categoriasSaida, adicionarCategoria } from '../types/categorias';
 
+import { BsPlusCircle } from "react-icons/bs";
+import { BsArrowLeft } from "react-icons/bs";
+
 import './Categorias.css'
 
 function Categorias() {
@@ -20,7 +23,7 @@ function Categorias() {
     return (
         <div>
             <div id="add-categoria">
-                <button onClick={() => navigate("/movimentacao")}>← Voltar</button>
+                <button onClick={() => navigate("/movimentacao")}><BsArrowLeft /> Voltar</button>
 
                 <h2>Gerenciar Categorias</h2>
 
@@ -36,7 +39,7 @@ function Categorias() {
                     onChange={(e) => setNovaCategoria(e.target.value)}
                 />
 
-                <button onClick={handleAdicionar}>+</button>
+                <button onClick={handleAdicionar}><BsPlusCircle /></button>
             </div>
 
             <div id="categoria-container">
