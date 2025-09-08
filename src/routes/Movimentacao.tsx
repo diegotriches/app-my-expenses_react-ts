@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Transacao } from '../types/transacao';
 import { categoriasEntrada, categoriasSaida } from '../types/categorias';
 
-import { BsFunnel, BsFunnelFill, BsPlusCircle, BsFloppy2Fill, BsPencil } from "react-icons/bs";
+import { BsFunnel, BsFunnelFill, BsPlusCircle, BsFloppy2Fill, BsPencil, BsFillTrash3Fill } from "react-icons/bs";
 
 import './Movimentacao.css'
 
@@ -20,13 +20,17 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
     const [valor, setValor] = useState(""); // Recebe as informações do valor
     const [categoria, setCategoria] = useState(""); // Recebe as informações da categoria
 
+    const [modoLancamento, setModoLancamento] = useState<"Simples" | "Parcelado" | "Recorrente">("Simples");
+    const [parcelas, setParcelas] = useState(1);
+    const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
+
     const [filtroData, setFiltroData] = useState(""); // Filtro para a data da movimentação feita
     const [filtroTipo, setFiltroTipo] = useState<"" | "Entrada" | "Saída">(""); // Filtro para o tipo de movimentação feita
     const [filtroValorMin, setFiltroValorMin] = useState(""); // Filtro para os valores mínimos das movimentações feitas
     const [filtroValorMax, setFiltroValorMax] = useState(""); // Filtro para os valores máximos das movimentações feitas
     const [filtroCategoria, setFiltroCategoria] = useState(""); // Filtro para a categoria de movimentação feita
 
-    const [mostrarFiltro, setMostrarFiltro] = useState(true); // Opção para mostrar ou esconder os filtros
+    const [mostrarFiltro, setMostrarFiltro] = useState(false); // Opção para mostrar ou esconder os filtros
 
     const [editandoId, setEditandoId] = useState<number | null>(null);
 
@@ -49,16 +53,61 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
             setTransacoes(transacoesAtualizadas);
 
         } else {
-            const novaTransacao: Transacao = { // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
-                id: Date.now(),
-                data,
-                tipo,
-                descricao,
-                valor: Number(valor),
-                categoria,
-            };
+            const valorNumber = Number(valor);
 
-            setTransacoes([...transacoes, novaTransacao]); // Armazena a nova transação dentro do Array de transações, sem sobrepôr as anteriores
+            if (modoLancamento === "Parcelado" && parcelas > 1) {
+                const novasParcelas: Transacao[] = [];
+
+                for (let i = 1; i <= parcelas; i++) {
+                    const dataParcela = new Date(data);
+                    dataParcela.setMonth(dataParcela.getMonth() + (i - 1));
+
+                    novasParcelas.push({
+                        id: Date.now() + i,
+                        data: dataParcela.toISOString().split("T")[0],
+                        tipo,
+                        descricao,
+                        valor: valorNumber / parcelas,
+                        parcela: `${i}/${parcelas}`,
+                        categoria,
+                    });
+                }
+
+                setTransacoes([...transacoes, ...novasParcelas]);
+            }
+            else if (modoLancamento === "Recorrente" && mesesRecorrencia > 1) {
+                const novasRecorrencias: Transacao[] = [];
+
+                for (let i = 0; i < mesesRecorrencia; i++) {
+                    const dataRecorrencia = new Date(data);
+                    dataRecorrencia.setMonth(dataRecorrencia.getMonth() + i);
+
+                    novasRecorrencias.push({
+                        id: Date.now() + i,
+                        data: dataRecorrencia.toISOString().split("T")[0],
+                        tipo,
+                        descricao,
+                        valor: valorNumber,
+                        recorrente: true,
+                        categoria,
+                    });
+                }
+
+                setTransacoes([...transacoes, ...novasRecorrencias]);
+            }
+
+            else {
+                const novaTransacao: Transacao = { // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
+                    id: Date.now(),
+                    data,
+                    tipo,
+                    descricao,
+                    valor: valorNumber,
+                    categoria,
+                };
+
+                setTransacoes([...transacoes, novaTransacao]); // Armazena a nova transação dentro do Array de transações, sem sobrepôr as anteriores
+            }
         }
 
         limparCampos();
@@ -74,6 +123,14 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
         setDescricao(transacao.descricao);
         setValor(transacao.valor.toString());
         setCategoria(transacao.categoria);
+    };
+
+    const excluirTransacao = (id: number) => {
+        const confirmacao = window.confirm("Tem certeza que deseja excluir esta movimentação?");
+        if (confirmacao) {
+            setTransacoes(transacoes.filter((t) => t.id !== id));
+            if (editandoId === id) limparCampos();
+        }
     };
 
     const categoriasDisponiveis = tipo === "Entrada" ? categoriasEntrada : categoriasSaida;
@@ -117,6 +174,30 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
                     value={valor}
                     onChange={(e) => setValor(e.target.value)} required
                 />
+
+                <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "Simples" | "Parcelado" | "Recorrente")}>
+                    <option value="Simples">Simples</option>
+                    <option value="Parcelado">Parcelado</option>
+                    <option value="Recorrente">Recorrente</option>
+                </select>
+
+                {modoLancamento === "Parcelado" && (
+                    <input
+                    type="number"
+                    placeholder='Número de parcelas'
+                    value={parcelas}
+                    onChange={(e) => setParcelas(Number(e.target.value))}
+                    />
+                )}
+                
+                {modoLancamento === "Recorrente" && (
+                    <input
+                    type="number"
+                    placeholder='Meses de recorrência'
+                    value={mesesRecorrencia}
+                    onChange={(e) => setMesesRecorrencia(Number(e.target.value))}
+                    />
+                )}
 
                 <select
                     value={categoria}
@@ -199,6 +280,7 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
                         <li key={t.id}>
                             ID: {t.id} || Data: {t.data} - {t.tipo} - {t.descricao} - R${t.valor.toFixed(2)} ({t.categoria})
                             <button onClick={() => iniciarEdicao(t.id)}><BsPencil /></button>
+                            <button onClick={() => excluirTransacao(t.id)}><BsFillTrash3Fill /></button>
                         </li>
                     ))}
                 </ul>

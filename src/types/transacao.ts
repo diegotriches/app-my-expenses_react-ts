@@ -5,4 +5,6 @@ export interface Transacao {
     valor: number;
     tipo: "Entrada" | "Saída";
     categoria: string;
+    parcela?: string;
+    recorrente?: boolean;
 }
