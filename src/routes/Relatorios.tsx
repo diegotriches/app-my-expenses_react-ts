@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Transacao } from '../types/transacao';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 
 import './Relatorios.css';
 
@@ -38,13 +38,27 @@ function Relatorios({ transacoes }: Props) {
     { name: "Saídas", value: totalSaidas },
   ];
 
+  const COLORS = ["#00C49F", "#FF4C4C"];
+
   const totalPorCategoria: Record<string, number> = {};
-  transacoesFiltradas.forEach((t) => {
-    if (!totalPorCategoria[t.categoria]) {
-      totalPorCategoria[t.categoria] = 0;
-    }
-    totalPorCategoria[t.categoria] += t.valor;
-  });
+  transacoesFiltradas
+    .filter((t) => t.tipo === "Saída")
+    .forEach((t) => {
+      if (!totalPorCategoria[t.categoria]) {
+        totalPorCategoria[t.categoria] = 0;
+      }
+      totalPorCategoria[t.categoria] += t.valor;
+    });
+
+  const dataBarChart = Object.entries(totalPorCategoria).map(([categoria, valor]) => ({
+    categoria,
+    valor,
+  }));
+
+  const COLORS_CATEGORIAS = [
+    "#FF6384", "#36A2EB", "#FFCE56", "#8A2BE2", "#FF7F50",
+    "#00CED1", "#3CB371", "#FFD700", "#FF69B4", "#87CEEB"
+  ];
 
   return (
     <div id='relatorios-container'>
@@ -69,38 +83,52 @@ function Relatorios({ transacoes }: Props) {
         />
       </div>
 
-      <h4 className='periodo-relatorio'>{meses[mesSelecionado]} / {anoSelecionado}</h4>
+      <div className="resumo-periodo">
+        <strong>{meses[mesSelecionado]} / {anoSelecionado}</strong> — Entradas: R$ {totalEntradas.toFixed(2)}, Saídas: R$ {totalSaidas.toFixed(2)}
+      </div>
 
-      <ul className='lista-categorias'>
-        {Object.entries(totalPorCategoria).map(([cat, total]) => (
-          <li key={cat}>
-            {cat}: R$ {total.toFixed(2)}
-          </li>
-        ))}
-      </ul>
+      <div className="graficos-relatorios">
+        <div className="grafico-card">
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={dataGrafico}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, value }) => `${name}: R$ ${(value ?? 0).toFixed(2)}`}
+              >
+                {dataGrafico.map((entry, index) => (
+                  <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-      <div className="grafico-relatorio">
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={dataGrafico}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={120}
-              fill="#8884d8"
-              dataKey="value"
-              label={({ name, value }) => `${name}: R$ ${(value ?? 0).toFixed(2)}`}
-            >
-              {dataGrafico.map((entry, index) => (
-                <Cell key={entry.name} fill={["#00C49F", "#FF8042"][index % 2]}
-                />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="grafico-card">
+          <h4>Gastos por Categoria</h4>
+
+          <ResponsiveContainer width='100%' height={350}>
+            <BarChart data={dataBarChart} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="categoria" />
+              <YAxis />
+              <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
+              <Legend />
+              <Bar dataKey="valor" isAnimationActive={true}>
+                {dataBarChart.map((entry, index) => (
+                  <Cell key={entry.categoria} fill={COLORS_CATEGORIAS[index % COLORS_CATEGORIAS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
