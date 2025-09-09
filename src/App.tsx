@@ -22,7 +22,7 @@ function App() {
                     path="/movimentacao"
                     element={<Movimentacao transacoes={transacoes} setTransacoes={setTransacoes} />}
                 />
-                <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/relatorios" element={<Relatorios transacoes={transacoes} />} />
                 <Route path="/categorias" element={<Categorias/>} />
             </Routes>
     </BrowserRouter>

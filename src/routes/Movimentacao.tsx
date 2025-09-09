@@ -147,7 +147,7 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
 
     return (
         <>
-            <div id='add-mov'>
+            <div id='form-transacao'>
                 <h3>{editandoId ? "Editar Movimentação" : "Adicionar Movimentação"}</h3>
 
                 <input
@@ -183,19 +183,19 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
 
                 {modoLancamento === "Parcelado" && (
                     <input
-                    type="number"
-                    placeholder='Número de parcelas'
-                    value={parcelas}
-                    onChange={(e) => setParcelas(Number(e.target.value))}
+                        type="number"
+                        placeholder='Número de parcelas'
+                        value={parcelas}
+                        onChange={(e) => setParcelas(Number(e.target.value))}
                     />
                 )}
-                
+
                 {modoLancamento === "Recorrente" && (
                     <input
-                    type="number"
-                    placeholder='Meses de recorrência'
-                    value={mesesRecorrencia}
-                    onChange={(e) => setMesesRecorrencia(Number(e.target.value))}
+                        type="number"
+                        placeholder='Meses de recorrência'
+                        value={mesesRecorrencia}
+                        onChange={(e) => setMesesRecorrencia(Number(e.target.value))}
                     />
                 )}
 
@@ -273,17 +273,34 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
             )}
 
             <div id="mov-list">
-                <h3>Lista de Movimentação</h3>
+                <h3>Lista de Movimentações</h3>
 
-                <ul>
+                <div className="cards-mov">
                     {transacoesFiltradas.map((t) => (
-                        <li key={t.id}>
-                            ID: {t.id} || Data: {t.data} - {t.tipo} - {t.descricao} - R${t.valor.toFixed(2)} ({t.categoria})
-                            <button onClick={() => iniciarEdicao(t.id)}><BsPencil /></button>
-                            <button onClick={() => excluirTransacao(t.id)}><BsFillTrash3Fill /></button>
-                        </li>
+                        <div
+                            key={t.id}
+                            className={`card-mov ${t.tipo.toLowerCase()} ${t.recorrente ? 'recorrente' : ''}`}
+                        >
+                            <div className="card-header">
+                                <span className="data">{t.data}</span>
+                                <div className="acoes">
+                                    <button onClick={() => iniciarEdicao(t.id)}><BsPencil /></button>
+                                    <button onClick={() => excluirTransacao(t.id)}><BsFillTrash3Fill /></button>
+                                </div>
+                            </div>
+
+                            <div className="card-body">
+                                <p className="descricao">{t.descricao}</p>
+                                <p className="categoria">{t.categoria}</p>
+                                {t.parcela && <p className="parcela">{t.parcela}</p>}
+                            </div>
+
+                            <div className="card-valor">
+                                R$ {t.valor.toFixed(2)}
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             </div>
         </>
     )

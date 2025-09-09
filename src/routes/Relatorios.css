@@ -1,0 +1,79 @@
+/* Container principal */
+#relatorios-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* Título */
+#relatorios-container h3 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  color: #1565c0;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Filtros */
+.filtros-relatorios {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.filtros-relatorios select,
+.filtros-relatorios input {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
+
+.filtros-relatorios select:focus,
+.filtros-relatorios input:focus {
+  border-color: #1565c0;
+  outline: none;
+}
+
+/* Título do período */
+.periodo-relatorio {
+  text-align: center;
+  margin: 1rem 0;
+  font-weight: 500;
+  color: #444;
+}
+
+/* Lista de categorias */
+.lista-categorias {
+  margin: 1rem auto 2rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  max-width: 500px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.lista-categorias li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.lista-categorias li:last-child {
+  border-bottom: none;
+}
+
+/* Gráfico */
+.grafico-relatorio {
+  width: 100%;
+  height: 320px;
+  margin: auto;
+}

@@ -1,0 +1,62 @@
+#resumo-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.filtros {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filtros select,
+.filtros input[type="number"] {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Container dos cards */
+.cards-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+/* Estilo geral dos cards */
+.card {
+  flex: 1;
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card h4 {
+  margin-bottom: 0.5rem;
+}
+
+/* Cores específicas */
+.entradas {
+  background-color: #2e7d32; /* verde */
+}
+
+.saidas {
+  background-color: #c62828; /* vermelho */
+}
+
+.saldo {
+  background-color: #1565c0; /* azul */
+}

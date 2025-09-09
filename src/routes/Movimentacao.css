@@ -1,68 +1,249 @@
-#add-mov {
-  display: flex;
-  align-items: center;
-  width: auto;
-  gap: 5px;
-  padding: 10px;
-  margin: 0 auto;
-  background-color: #f9f9f9;
-  border: #333;
+#form-transacao {
+  max-width: 700px;
+  margin: 1.5rem auto;
+  padding: 1rem 1.2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-#mov-list {
-  display: flex;
-  width: 50%;
-  margin: 20px auto;
-  background-color: #f9f9f9;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 4px 4px 10px 0px;
-  border-radius: 5px;
+#form-transacao h3 {
+  grid-column: span 2;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #1565c0;
 }
 
-input {
-  width: 220px;
-  padding: 0.6rem 0.9rem;
-  border: 2px solid #ccc;
+#form-transacao input,
+#form-transacao select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  color: #333;
-  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  transition: border 0.2s;
 }
 
-select {
-  width: 250px;
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  color: #333;
+#form-transacao input:focus,
+#form-transacao select:focus {
+  border-color: #1565c0;
+  outline: none;
 }
 
-button {
-  width: 100px;
-  border-radius: 8px;
-  border: 3px solid transparent;
-  padding: 0.3rem 1.0rem;
+#form-transacao button {
+  padding: 0.8rem;
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
   font-size: 1rem;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background 0.2s;
 }
 
-button:hover {
-  border-color: #646cff;
+#form-transacao button:hover {
+  background: #0d47a1;
 }
 
-li {
+/* Filtros */
+.filtros {
+  max-width: 700px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: #fff3e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filtros input,
+.filtros select {
+  flex: 1 1 150px;
+}
+
+.filtros button {
+  flex: 1 1 100%;
+  background-color: #ff9800;
+}
+
+.filtros button:hover {
+  background-color: #f57c00;
+}
+
+/* Lista de movimentações */
+#mov-list {
+  max-width: 850px;
+  margin: 2rem auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#mov-list h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1565c0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Container de cards */
+.cards-mov {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Card individual */
+.card-mov {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-mov:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Borda de destaque por tipo */
+.card-mov.entrada::before,
+.card-mov.saída::before,
+.card-mov.recorrente::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  border-radius: 14px 0 0 14px;
+}
+
+.card-mov.entrada::before {
+  background: #2e7d32; /* verde */
+}
+
+.card-mov.saída::before {
+  background: #c62828; /* vermelho */
+}
+
+.card-mov.recorrente::before {
+  background: #1565c0; /* azul */
+}
+
+/* Header do card */
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 5px 0;
+  margin-bottom: 0.8rem;
 }
 
-filtros {
-  
+.card-header .data {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.card-header .acoes button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  color: #444;
+  transition: color 0.2s;
+}
+
+.card-header .acoes button:hover {
+  color: #000;
+}
+
+/* Corpo do card */
+.card-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.card-body .descricao {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #222;
+  flex: 2;
+}
+
+.card-body .categoria {
+  background: #e3f2fd;
+  color: #1565c0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+}
+
+.card-body .parcela,
+.card-mov.recorrente .card-body::after {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  margin-left: auto;
+}
+
+/* Badge de parcela */
+.card-body .parcela {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+/* Badge de recorrência */
+.card-mov.recorrente .card-body::after {
+  content: "Recorrente";
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* Valor */
+.card-valor {
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-align: right;
+}
+
+.card-mov.entrada .card-valor {
+  color: #2e7d32;
+}
+
+.card-mov.saída .card-valor {
+  color: #c62828;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-body .categoria,
+  .card-body .parcela {
+    margin-left: 0;
+  }
+
+  .card-valor {
+    text-align: left;
+    margin-top: 0.5rem;
+  }
 }

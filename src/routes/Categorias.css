@@ -1,20 +1,115 @@
+/* Container principal */
 #add-categoria {
-    width: 50%;
-    margin: 20px auto;
-    padding: 1rem;
-    background-color: #fff;
-    box-shadow: 4px 4px 10px 0px;
-    border-radius: 5px;
+  background: #ffffff;
+  padding: 1.5rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+/* Botão de voltar */
+#add-categoria button:first-child {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  color: #1565c0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+#add-categoria button:first-child:hover {
+  color: #0d47a1;
+}
+
+/* Título */
+#add-categoria h2 {
+  margin: 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* Inputs e selects */
+#add-categoria select,
+#add-categoria input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+}
+
+#add-categoria select:focus,
+#add-categoria input:focus {
+  border-color: #1565c0;
+}
+
+/* Botão de adicionar */
+#add-categoria button:last-child {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 0.8rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.1s;
+}
+
+#add-categoria button:last-child:hover {
+  background: #0d47a1;
+  transform: scale(1.05);
+}
+
+/* Listas de categorias */
 #categoria-container {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    align-items: center;
-    padding: 2rem;
-    margin: 20px auto;
-    background-color: #fff;
-    box-shadow: 4px 4px 10px 0px;
-    border-radius: 5px;
+  background: #fff;
+  padding: 1.5rem;
+  margin: 1rem auto;
+  max-width: 600px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+#categoria-container h3 {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #444;
+}
+
+#categoria-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+}
+
+#categoria-container li {
+  background: #f5f5f5;
+  margin: 0.3rem 0;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background 0.2s ease-in-out;
+}
+
+#categoria-container li:hover {
+  background: #e3f2fd;
 }
