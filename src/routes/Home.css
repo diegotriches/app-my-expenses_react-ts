@@ -1,62 +1,45 @@
-#resumo-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.home-container {
+  padding: 20px;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.filtros {
+.filtros-periodo {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.filtros select,
-.filtros input[type="number"] {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* Container dos cards */
 .cards-container {
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
 }
 
-/* Estilo geral dos cards */
 .card {
-  flex: 1;
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 15px;
+  border-radius: 10px;
   color: #fff;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-weight: bold;
 }
 
-.card h4 {
-  margin-bottom: 0.5rem;
+.card.entrada {
+  background-color: #00C49F;
 }
 
-/* Cores específicas */
-.entradas {
-  background-color: #2e7d32; /* verde */
+.card.saida {
+  background-color: #FF4C4C;
 }
 
-.saidas {
-  background-color: #c62828; /* vermelho */
+.card.saldo {
+  background-color: #4C9BFF;
 }
 
-.saldo {
-  background-color: #1565c0; /* azul */
+.card.transacoes {
+  background-color: #FFC107;
+  color: #000;
+}
+
+.card.maior-gasto {
+  background-color: #FF6F61;
 }

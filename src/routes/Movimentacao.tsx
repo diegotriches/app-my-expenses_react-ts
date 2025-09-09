@@ -9,10 +9,12 @@ import './Movimentacao.css'
 
 interface Props {
     transacoes: Transacao[];
-    setTransacoes: React.Dispatch<React.SetStateAction<Transacao[]>>;
+    adicionarTransacao: (nova: Transacao) => void;
+    editarTransacao: (atualizada: Transacao) => void;
+    excluirTransacao: (id: number) => void;
 }
 
-function Movimentacao({ transacoes, setTransacoes }: Props) {
+function Movimentacao({ transacoes, adicionarTransacao, editarTransacao, excluirTransacao }: Props) {
 
     const [data, setData] = useState(""); // Recebe as informações da data
     const [tipo, setTipo] = useState<"Entrada" | "Saída">("Entrada"); // Recebe as informações do tipo
@@ -48,21 +50,27 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
     const adicionarOuEditarTransacao = () => { // Adiciona a transação
         if (!data || !descricao || !valor || !categoria) return; // Verifica se as informações foram preenchidas? VERIFICAR
 
+        const valorNumber = Number(valor);
+
         if (editandoId) {
-            const transacoesAtualizadas = transacoes.map((t) => t.id === editandoId ? { ...t, tipo, descricao, valor: Number(valor), categoria, data } : t);
-            setTransacoes(transacoesAtualizadas);
+            const transacaoAtualizada: Transacao = {
+                id: editandoId,
+                data,
+                tipo,
+                descricao,
+                valor: valorNumber,
+                categoria,
+            };
+            editarTransacao(transacaoAtualizada);
 
         } else {
-            const valorNumber = Number(valor);
 
             if (modoLancamento === "Parcelado" && parcelas > 1) {
-                const novasParcelas: Transacao[] = [];
-
                 for (let i = 1; i <= parcelas; i++) {
                     const dataParcela = new Date(data);
                     dataParcela.setMonth(dataParcela.getMonth() + (i - 1));
 
-                    novasParcelas.push({
+                    adicionarTransacao({
                         id: Date.now() + i,
                         data: dataParcela.toISOString().split("T")[0],
                         tipo,
@@ -72,17 +80,12 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
                         categoria,
                     });
                 }
-
-                setTransacoes([...transacoes, ...novasParcelas]);
-            }
-            else if (modoLancamento === "Recorrente" && mesesRecorrencia > 1) {
-                const novasRecorrencias: Transacao[] = [];
-
+            } else if (modoLancamento === "Recorrente" && mesesRecorrencia > 1) {
                 for (let i = 0; i < mesesRecorrencia; i++) {
                     const dataRecorrencia = new Date(data);
                     dataRecorrencia.setMonth(dataRecorrencia.getMonth() + i);
 
-                    novasRecorrencias.push({
+                    adicionarTransacao({
                         id: Date.now() + i,
                         data: dataRecorrencia.toISOString().split("T")[0],
                         tipo,
@@ -92,21 +95,15 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
                         categoria,
                     });
                 }
-
-                setTransacoes([...transacoes, ...novasRecorrencias]);
-            }
-
-            else {
-                const novaTransacao: Transacao = { // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
+            } else {
+                adicionarTransacao ({ // Determina quais informações serão inseridas e armazenadas na constante novaTransacao e que irá jogar os dados no array Transacao
                     id: Date.now(),
                     data,
                     tipo,
                     descricao,
                     valor: valorNumber,
                     categoria,
-                };
-
-                setTransacoes([...transacoes, novaTransacao]); // Armazena a nova transação dentro do Array de transações, sem sobrepôr as anteriores
+                });
             }
         }
 
@@ -123,14 +120,6 @@ function Movimentacao({ transacoes, setTransacoes }: Props) {
         setDescricao(transacao.descricao);
         setValor(transacao.valor.toString());
         setCategoria(transacao.categoria);
-    };
-
-    const excluirTransacao = (id: number) => {
-        const confirmacao = window.confirm("Tem certeza que deseja excluir esta movimentação?");
-        if (confirmacao) {
-            setTransacoes(transacoes.filter((t) => t.id !== id));
-            if (editandoId === id) limparCampos();
-        }
     };
 
     const categoriasDisponiveis = tipo === "Entrada" ? categoriasEntrada : categoriasSaida;

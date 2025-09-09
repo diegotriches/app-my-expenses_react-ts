@@ -30,15 +30,21 @@ function Home({ transacoes }: Props) {
 
   const saldo = totalEntradas - totalSaidas;
 
+  const numeroTransacoes = transacoesFiltradas.length;
+
+  const maiorGasto = transacoesFiltradas
+    .filter((t) => t.tipo === "Saída")
+    .reduce((max, t) => (t.valor > max ? t.valor : max), 0);
+
   const meses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
 
   return (
-    <div id="resumo-container">
-      <h2>Resumo Financeiro</h2>
+    <div id="home-container">
+      <h2>Resumo do Mês</h2>
 
-      <div className="filtros">
+      <div className="filtros-periodo">
         <select
           value={mesSelecionado}
           onChange={(e) => setMesSelecionado(Number(e.target.value))}
@@ -60,15 +66,28 @@ function Home({ transacoes }: Props) {
       <h3>{meses[mesSelecionado]} / {anoSelecionado}</h3>
 
       <div className="cards-container">
-        <div className="card entradas">
-          <p id="entradas">Entradas: R$ {totalEntradas.toFixed(2)}</p>
+        <div className="card entrada">
+          <p>Entradas: R$ {totalEntradas.toFixed(2)}</p>
         </div>
-        <div className="card saidas">
-          <p id="saidas">Saídas: R$ {totalSaidas.toFixed(2)}</p>
+
+        <div className="card saida">
+          <p>Saídas: R$ {totalSaidas.toFixed(2)}</p>
         </div>
+
         <div className="card saldo">
           <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
         </div>
+
+        <div className="card transacoes">
+          <h4>Total de Transações</h4>
+          <p>{numeroTransacoes}</p>
+        </div>
+
+        <div className="card maior-gasto">
+          <h4>Maior Gasto</h4>
+          <p>R$ {maiorGasto.toFixed(2)}</p>
+        </div>
+        
       </div>
     </div>
   );
