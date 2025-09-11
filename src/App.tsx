@@ -1,40 +1,38 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import type { Transacao } from './types/transacao'
+import axios from "axios";
 
+import type { Transacao } from './types/transacao'
 import Navbar from "./components/Navbar";
 import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
 import Categorias from "./routes/Categorias";
 
-import './App.css'
-
 function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
 
-  useEffect(() => { // Carrega o Local Storage ao iniciar
-    const dadosSalvos = localStorage.getItem("transacoes");
-    if (dadosSalvos) {
-      setTransacoes(JSON.parse(dadosSalvos));
-    }
+  useEffect(() => { // Carrega o Banco de Dados ao iniciar
+    axios
+    .get("http://localhost:5000/transacoes")
+    .then(res => setTransacoes(res.data))
+    .catch(err => console.error(err));
   }, []);
 
-  useEffect(() => { // Salva no Local Storage sempre que mudar
-    localStorage.setItem("transacoes", JSON.stringify(transacoes));
-  }, [transacoes]);
-
-  const adicionarTransacao = (nova: Transacao) => { // Adicionar transação
-    setTransacoes((prev) => [...prev, nova]);
+  const adicionarTransacao = async (nova: Transacao) => { // Adicionar transação
+    const res = await axios.post("http://localhost:5000/transacoes", nova);
+    setTransacoes(prev => [...prev, res.data]);
   };
 
-  const editarTransacao = (atualizada: Transacao) => { // Editar transação
-    setTransacoes((prev) => prev.map((t) => (t.id === atualizada.id ? atualizada : t))
+  const editarTransacao = async (atualizada: Transacao) => { // Editar transação
+    const res = await axios.put(`http://localhost:5000/transacoes/${atualizada.id}`, atualizada);
+    setTransacoes(prev => prev.map((t) => (t.id === atualizada.id ? res.data : t))
     );
   };
 
-  const excluirTransacao = (id: number) => {
-    setTransacoes((prev) => prev.filter((t) => t.id !== id));
+  const excluirTransacao = async (id: number) => {
+    await axios.delete(`http://localhost:5000/transacoes/${id}`);
+    setTransacoes(prev => prev.filter(t => t.id !== id));
   };
 
   return (
