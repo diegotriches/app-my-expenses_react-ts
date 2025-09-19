@@ -62,7 +62,7 @@ function Relatorios({ transacoes }: Props) {
 
   return (
     <div id='relatorios-container'>
-      <h3>Relatórios</h3>
+      <h2>Relatórios do Mês</h2>
 
       <div className="filtros-relatorios">
         <select

@@ -4,8 +4,26 @@
 
 .filtros-periodo {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.filtros-periodo select,
+.filtros-periodo input {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.filtros-periodo select:focus,
+.filtros-periodo input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 .cards-container {

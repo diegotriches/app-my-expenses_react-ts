@@ -1,12 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { BsHouse, BsArrowLeftRight, BsBarChart } from "react-icons/bs";
+import { BsHouse, BsArrowLeftRight, BsBarChart, BsCashCoin } from "react-icons/bs";
 
 import "./Navbar.css";
 
 const Navbar = () => {
     return (
         <nav>
-            <h1>My Expenses</h1>
+            <h1><BsCashCoin /> MyExpenses</h1>
             <div className="nav-links">
                 <NavLink to="/" end><BsHouse className="icon" />Visão Geral</NavLink>
                 <NavLink to="/movimentacao"><BsArrowLeftRight className="icon" />Movimentação</NavLink>
