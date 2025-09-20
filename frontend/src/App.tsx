@@ -8,6 +8,7 @@ import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
 import Categorias from "./routes/Categorias";
+import FormMovimentacao from "./routes/FormMovimentacao"
 
 function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
@@ -55,12 +56,17 @@ function App() {
             path="/movimentacao"
             element={<Movimentacao
               transacoes={transacoes}
-              adicionarTransacao={adicionarTransacao}
-              editarTransacao={editarTransacao}
               excluirTransacao={excluirTransacao}
             />}
           />
           <Route path="/relatorios" element={<Relatorios transacoes={transacoes} />} />
+          <Route
+            path="/form-movimentacao/:id?"
+            element={<FormMovimentacao
+              transacoes={transacoes}
+              adicionarTransacao={adicionarTransacao}
+              editarTransacao={editarTransacao}
+            />} />
           <Route path="/categorias" element={<Categorias />} />
         </Routes>
       </BrowserRouter>

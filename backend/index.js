@@ -53,7 +53,7 @@ app.put("/transacoes/:id", (req, res) => {
     const { data, tipo, descricao, valor, categoria, parcela, recorrente } = req.body;
 
     db.run(
-        "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, parcela = ?, recorrente = ?, WHERE id = ?",
+        "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, parcela = ?, recorrente = ? WHERE id = ?",
         [id, data, tipo, descricao, valor, categoria, parcela, recorrente],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });

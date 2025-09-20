@@ -23,7 +23,7 @@ function Categorias() {
     return (
         <div>
             <div id="add-categoria">
-                <button onClick={() => navigate("/movimentacao")}><BsArrowLeft /> Voltar</button>
+                <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
 
                 <h2>Gerenciar Categorias</h2>
 
