@@ -25,6 +25,23 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
 
     const [hoverId, setHoverId] = useState<number | null>(null);
 
+    const [excluirId, setExcluirId] = useState<number | null>(null);
+
+    const confirmarExclusao = (id: number) => {
+        setExcluirId(id);
+    };
+
+    const cancelarExclusao = () => {
+        setExcluirId(null);
+    };
+
+    const executarExclusao = () => {
+        if (excluirId !== null) {
+            excluirTransacao(excluirId);
+            setExcluirId(null);
+        }
+    };
+
     const navigate = useNavigate(); // Hook para navegação - utilizado para navegar entre a página de criar categorias
 
     const transacoesFiltradas = transacoes.filter((t) => {
@@ -41,8 +58,6 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
 
     return (
         <>
-            <button onClick={() => navigate("/form-movimentacao")}>Adicionar Movimentação</button>
-
             <button onClick={() => setMostrarFiltro(!mostrarFiltro)}>
                 {mostrarFiltro ? <BsFunnel /> : <BsFunnelFill />}
             </button>
@@ -120,31 +135,39 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                     {transacoesFiltradas.map((t) => (
                         <div
                             key={t.id}
-                            onMouseEnter={() => setHoverId(t.id)}
-                            onMouseLeave={() => setHoverId(null)}
+                            className={`card-mov ${t.tipo.toLowerCase()} ${hoverId === t.id ? "ativo" : ''}`}
+                            onClick={() => setHoverId(hoverId === t.id ? null : t.id)}
                         >
-                            <div className={`card-mov ${t.tipo.toLowerCase()}`}>
-                                <div className="card-header">
-                                    <span className="data">{new Date(t.data).toLocaleDateString("pt-BR")}</span>
-                                    <p className="descricao">{t.descricao}</p>
-                                    <p className="categoria">{t.categoria}</p>
+                            <div className="card-body">
+                                <span className="data">{new Date(t.data).toLocaleDateString("pt-BR")}</span>
+                                <p className="descricao">{t.descricao}</p>
+                                <p className="categoria">{t.categoria}</p>
 
-                                    {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}
-                                    {t.recorrente && <span className="recorrente">Recorrente</span>}
+                                {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}
+                                {t.recorrente && <span className="recorrente">Recorrente</span>}
 
-                                    <div className="card-valor">
-                                        R$ {t.valor.toFixed(2)}
-                                    </div>
-                                </div>
+                                <p className="valor">R$ {t.valor.toFixed(2)}</p>
                             </div>
                             {hoverId === t.id && (
                                 <div className="acoes">
                                     <button onClick={() => navigate(`/form-movimentacao/${t.id}`)}><BsPencil /></button>
-                                    <button onClick={() => excluirTransacao(t.id)}><BsFillTrash3Fill /></button>
+                                    <button onClick={() => confirmarExclusao(t.id)}><BsFillTrash3Fill /></button>
                                 </div>
                             )}
                         </div>
                     ))}
+
+                    {excluirId !== null && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <p>Tem certeza que deseja excluir esta movimentação?</p>
+                                <div className="modal-buttons">
+                                    <button className='btn-confirm' onClick={executarExclusao}>Sim</button>
+                                    <button className='btn-cancel' onClick={cancelarExclusao}>Não</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

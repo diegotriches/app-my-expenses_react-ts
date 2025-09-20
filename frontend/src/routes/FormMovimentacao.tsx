@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { Transacao } from '../types/transacao';
 import { categoriasEntrada, categoriasSaida } from '../types/categorias';
 
-import { BsPlusCircle, BsFloppy2Fill, BsArrowLeft } from "react-icons/bs";
+import { BsFloppy2Fill, BsArrowLeft } from "react-icons/bs";
 
 import './FormMovimentacao.css'
 
@@ -120,8 +120,11 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
 
     return (
         <>
+            <div id="top-menu">
+                <button onClick={() => navigate("/movimentacao")}><BsArrowLeft />Voltar</button>
+                <button onClick={() => navigate("/categorias")}>Categorias</button>
+            </div>
             <div id='form-transacao'>
-                <button onClick={() => navigate("/movimentacao")}><BsArrowLeft /> Voltar</button>
                 <h3>{editandoId ? "Editar Movimentação" : "Adicionar Movimentação"}</h3>
 
                 <input
@@ -183,12 +186,8 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                 </select>
 
                 <button onClick={adicionarOuEditarTransacao}>
-                    {editandoId ? <BsFloppy2Fill /> : <BsPlusCircle />}
+                    <BsFloppy2Fill /> {editandoId ? "Salvar edições" : "Salvar"}
                 </button>
-
-                {editandoId && <button onClick={limparCampos}>Cancelar</button>}
-
-                <button onClick={() => navigate("/categorias")}>Categorias</button>
             </div>
         </>
     )

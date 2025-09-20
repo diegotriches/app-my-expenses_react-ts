@@ -44,46 +44,71 @@
 .cards-mov {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
 }
 
 /* Card individual */
 .card-mov {
-  border-radius: 3px;
   background: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.card-mov:hover {
-  transform: scale(1.04);
+.card-mov.ativo {
+  border-color: #007bff; /* azul destaque */
+  background: #f0f8ff;   /* fundo levemente azul */
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.card-mov .acoes {
+  display: none;
+  gap: 8px;
+}
+
+.card-mov.ativo .acoes {
+  display: flex; /* só aparece quando ativo */
+  justify-content: flex-end;
+}
+
+.card-mov .acoes button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 1.1rem;
+  transition: color 0.2s ease;
+}
+
+.card-mov .acoes button:hover {
+  color: #007bff; /* destaque no hover */
 }
 
 /* Header do card */
-.card-header {
+.card-body {
   display: flex;
-  padding: 6px 10px;
   justify-content: space-between;
   flex: 1;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
 }
 
-.card-header .data {
-  margin-left: 1rem;
+.card-body .data {
+  margin-left: 1.2rem;
   font-weight: 600;
   font-size: 0.9rem;
   color: #666;
 }
 
-.card-header .descricao {
+.card-body .descricao {
   font-weight: 600;
   font-size: 1rem;
   color: #222;
   flex: 2;
 }
 
-.card-header .categoria {
+.card-body .categoria {
   background: #e3f2fd;
   color: #1565c0;
   font-size: 0.8rem;
@@ -92,7 +117,7 @@
   border-radius: 12px;
 }
 
-.card-header .parcela {
+.card-body .parcela {
   background: #f3e5f5;
   color: #6a1b9a;
   font-size: 0.75rem;
@@ -101,13 +126,21 @@
   border-radius: 12px;
 }
 
-.card-header .recorrente {
+.card-body .recorrente {
   background: #fff3cd;
   color: #856404;
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
+}
+
+.card-body .valor {
+  display: flex;
+  font-weight: 700;
+  font-size: 1.3rem;
+  justify-content: flex-end;
+  margin-right: 1.2rem;
 }
 
 .abas {
@@ -131,54 +164,81 @@
   font-weight: bold;
 }
 
-/* Valor */
-.card-valor {
-  font-weight: 700;
-  font-size: 1.3rem;
-  margin-right: 1rem;
-}
-
-.card-mov.entrada .card-valor {
+.card-mov.entrada .valor {
   color: #2e7d32;
 }
 
-.card-mov.saída .card-valor {
+.card-mov.saída .valor {
   color: #c62828;
 }
 
-.acoes {
+/* Fundo escuro transparente */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
   display: flex;
-  gap: 6px;
-  margin-left: 12px;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Caixa do modal */
+.modal-content {
   background: #fff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: fadeIn 0.25s ease;
 }
 
-.acoes button {
+/* Botões */
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
   border: none;
-  background: transparent;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 16px;
-  color: #777;
+  font-weight: 600;
+  transition: background 0.2s ease;
 }
 
-.acoes button:hover {
-  color: #000
+.modal-buttons .btn-confirm {
+  background: #c62828;
+  color: #fff;
+}
+
+.modal-buttons .btn-confirm:hover {
+  background: #aa1b1b;
+}
+
+.modal-buttons .btn-cancel {
+  background: #ddd;
+  color: #333;
+}
+
+.modal-buttons .btn-cancel:hover {
+  background: #bbb;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .card-header .categoria,
-  .card-header .parcela {
-    margin-left: 0;
-  }
+}
 
-  .card-valor {
-    text-align: left;
-    margin-top: 0.5rem;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }

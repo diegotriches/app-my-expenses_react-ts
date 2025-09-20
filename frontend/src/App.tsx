@@ -9,6 +9,7 @@ import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
 import Categorias from "./routes/Categorias";
 import FormMovimentacao from "./routes/FormMovimentacao"
+import FloatingButton from "./components/FloatingButton";
 
 function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
@@ -69,6 +70,7 @@ function App() {
             />} />
           <Route path="/categorias" element={<Categorias />} />
         </Routes>
+        <FloatingButton />
       </BrowserRouter>
     </div>
   );

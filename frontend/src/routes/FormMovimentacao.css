@@ -1,3 +1,29 @@
+/* Menu de topo */
+#top-menu {
+  display: flex;
+  justify-content: space-between;
+  max-width: 700px;
+  margin: 1.5rem auto;
+}
+
+#top-menu button {
+  display: flex;
+  padding: 0.7rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  color: #1565c0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#top-menu button:hover {
+  background: #f0f8ff;
+  border: 1px solid #007bff;
+}
+
+/* Formulário Adicionar Movimentação */
 #form-transacao {
   max-width: 700px;
   margin: 1.5rem auto;
@@ -32,7 +58,7 @@
   outline: none;
 }
 
-#form-transacao button {
+#form-transacao button:last-child {
   padding: 0.8rem;
   background: #1565c0;
   color: #fff;
@@ -44,6 +70,6 @@
   transition: background 0.2s;
 }
 
-#form-transacao button:hover {
+#form-transacao button:last-child:hover {
   background: #0d47a1;
 }
