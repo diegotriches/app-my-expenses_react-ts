@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
 import type { Transacao } from './types/transacao'
+import { PeriodoProvider } from "./components/PeriodoContext";
+
 import Navbar from "./components/Navbar";
 import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
@@ -49,6 +51,7 @@ function App() {
 
   return (
     <div>
+      <PeriodoProvider>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -72,6 +75,7 @@ function App() {
         </Routes>
         <FloatingButton />
       </BrowserRouter>
+      </PeriodoProvider>
     </div>
   );
 }

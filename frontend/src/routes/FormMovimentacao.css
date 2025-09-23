@@ -1,75 +1,116 @@
-/* Menu de topo */
 #top-menu {
   display: flex;
   justify-content: space-between;
-  max-width: 700px;
-  margin: 1.5rem auto;
+  max-width: 600px;
+  align-items: center;
+  background-color: #4a90e2;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 20px auto;
+}
+
+#top-menu h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 #top-menu button {
-  display: flex;
-  padding: 0.7rem;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  color: #1565c0;
-  font-size: 1rem;
+  background-color: #fff;
+  color: #4a90e2;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  transition: 0.2s;
 }
 
 #top-menu button:hover {
-  background: #f0f8ff;
-  border: 1px solid #007bff;
+  background-color: #e6f0ff;
 }
 
-/* Formulário Adicionar Movimentação */
+/* --------------------- FORMULÁRIO --------------------- */
 #form-transacao {
-  max-width: 700px;
-  margin: 1.5rem auto;
-  padding: 1rem 1.2rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-#form-transacao h3 {
-  grid-column: span 2;
-  margin-bottom: 0.5rem;
-  font-size: 1.2rem;
-  color: #1565c0;
-}
-
-#form-transacao input,
-#form-transacao select {
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  transition: border 0.2s;
-}
-
-#form-transacao input:focus,
-#form-transacao select:focus {
-  border-color: #1565c0;
-  outline: none;
-}
-
-#form-transacao button:last-child {
-  padding: 0.8rem;
-  background: #1565c0;
-  color: #fff;
-  border: none;
+  display: flex;
+  background-color: #fff;
   border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+  max-width: 600px;
+  margin: 20px auto;
+  flex-direction: column;
+  gap: 12px; /* espaçamento entre blocos */
+  padding: 1.2rem;
 }
 
-#form-transacao button:last-child:hover {
-  background: #0d47a1;
+/* Linha 1 - data + tipo + categoria */
+.linha-1 {
+  display: flex;
+  gap: 10px;
 }
+
+.linha-1 input,
+.linha-1 select {
+  flex: 1; /* divide igualmente o espaço */
+  min-width: 100px;
+  border-radius: 10px;
+  padding: 10px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Linha 2 - descrição */
+#descricao input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Linha 3 - valor + modoLancamento + extras */
+#pagamento-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap; /* permite quebrar linha em telas pequenas */
+}
+
+#pagamento-container input,
+#pagamento-container select {
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+#pagamento-container > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Botão salvar */
+#save-btn {
+  margin: 0 auto;
+}
+
+#save-btn button {
+  width: 120px;
+  padding: 8px;
+  background-color: #4a90e2;
+  color: white;
+  border: 2px solid;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+#save-btn button:hover {
+  background-color: #e6f0ff;
+  border: 2px solid #4a90e2;
+  color: #4a90e2;
+}
+

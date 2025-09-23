@@ -1,0 +1,35 @@
+.periodo-compact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f1f1f1;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.periodo-compact .seta {
+  background: #888;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.periodo-compact .seta:hover {
+  background: #555;
+}
+
+.periodo-compact .periodo-texto {
+  font-weight: 600;
+  min-width: 120px;
+  text-align: center;
+}

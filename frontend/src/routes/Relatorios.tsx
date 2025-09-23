@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import type { Transacao } from '../types/transacao';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+
+import { usePeriodo } from '../components/PeriodoContext';
+import PeriodoSelector from "../components/PeriodoSelector";
+import type { Transacao } from '../types/transacao';
 
 import './Relatorios.css';
 
@@ -9,13 +11,7 @@ interface Props {
 }
 
 function Relatorios({ transacoes }: Props) {
-  const hoje = new Date();
-  const [mesSelecionado, setMesSelecionado] = useState(hoje.getMonth());
-  const [anoSelecionado, setAnoSelecionado] = useState(hoje.getFullYear());
-
-  const meses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ];
+  const { mesSelecionado, anoSelecionado } = usePeriodo();
 
   const transacoesFiltradas = transacoes.filter((t) => {
     const data = new Date(t.data);
@@ -62,29 +58,10 @@ function Relatorios({ transacoes }: Props) {
 
   return (
     <div id='relatorios-container'>
-      <h2>Relatórios do Mês</h2>
-
-      <div className="filtros-relatorios">
-        <select
-          value={mesSelecionado}
-          onChange={(e) => setMesSelecionado(Number(e.target.value))}
-        >
-          {meses.map((mes, index) => (
-            <option key={index} value={index}>
-              {mes}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="number"
-          value={anoSelecionado}
-          onChange={(e) => setAnoSelecionado(Number(e.target.value))}
-        />
-      </div>
+      <PeriodoSelector />
 
       <div className="resumo-periodo">
-        <strong>{meses[mesSelecionado]} / {anoSelecionado}</strong> — Entradas: R$ {totalEntradas.toFixed(2)}, Saídas: R$ {totalSaidas.toFixed(2)}
+        <strong>Entradas: R$ {totalEntradas.toFixed(2)} - Saídas: R$ {totalSaidas.toFixed(2)}</strong>
       </div>
 
       <div className="graficos-relatorios">

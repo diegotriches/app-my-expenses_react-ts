@@ -22,9 +22,10 @@ function Categorias() {
 
     return (
         <div>
-            <div id="add-categoria">
+            <div id="top-btn">
                 <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
-
+            </div>
+            <div id="add-categoria">
                 <h2>Gerenciar Categorias</h2>
 
                 <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>

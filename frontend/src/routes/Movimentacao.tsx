@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { exportarCSV } from '../utils/ExportCsv';
+import { usePeriodo } from '../components/PeriodoContext';
 import type { Transacao } from '../types/transacao';
+import PeriodoSelector from "../components/PeriodoSelector";
 
 import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill } from "react-icons/bs";
 
@@ -12,29 +16,54 @@ interface Props {
 }
 
 function Movimentacao({ transacoes, excluirTransacao }: Props) {
+    const { mesSelecionado, anoSelecionado } = usePeriodo();
 
-    const [filtroData, setFiltroData] = useState(""); // Filtro para a data da movimentação feita
-    const [filtroTipo, setFiltroTipo] = useState<"" | "Entrada" | "Saída">(""); // Filtro para o tipo de movimentação feita
     const [filtroValorMin, setFiltroValorMin] = useState(""); // Filtro para os valores mínimos das movimentações feitas
     const [filtroValorMax, setFiltroValorMax] = useState(""); // Filtro para os valores máximos das movimentações feitas
     const [filtroCategoria, setFiltroCategoria] = useState(""); // Filtro para a categoria de movimentação feita
 
     const [mostrarFiltro, setMostrarFiltro] = useState(false); // Opção para mostrar ou esconder os filtros
-
     const [abaAtiva, setAbaAtiva] = useState<"Entrada" | "Saída">("Entrada"); // Aba de seleção para mostrar apenas movimentações de entrada ou apenas movimentações de saída.
 
     const [hoverId, setHoverId] = useState<number | null>(null);
-
     const [excluirId, setExcluirId] = useState<number | null>(null);
 
-    const confirmarExclusao = (id: number) => {
-        setExcluirId(id);
-    };
+    const navigate = useNavigate(); // Hook para navegação - utilizado para navegar entre a página de criar categorias
 
-    const cancelarExclusao = () => {
-        setExcluirId(null);
-    };
+    const transacoesFiltradas = transacoes.filter((t) => {
+        const data = new Date(t.data);
 
+        const matchMes = data.getMonth() === mesSelecionado;
+        const matchAno = data.getFullYear() === anoSelecionado;
+
+        const matchValorMin = filtroValorMin ? t.valor >= Number(filtroValorMin) : true;
+        const matchValorMax = filtroValorMax ? t.valor <= Number(filtroValorMax) : true;
+        const matchCategoria = filtroCategoria ? t.categoria === filtroCategoria : true;
+
+        const matchAba = abaAtiva === t.tipo;
+
+        return matchMes && matchAno && matchValorMin && matchValorMax && matchCategoria && matchAba;
+    });
+
+    const categoriasDisponiveis = Array.from(
+        new Set(
+            transacoes.filter((t) => {
+                const data = new Date(t.data);
+                const matchMes = data.getMonth() === mesSelecionado;
+                const matchAno = data.getFullYear() === anoSelecionado;
+                const matchAba = t.tipo === abaAtiva;
+                return matchMes && matchAno && matchAba;
+            })
+                .map((t) => t.categoria)
+        )
+    );
+
+    useEffect(() => {
+        setFiltroCategoria("");
+    }, [abaAtiva]);
+
+    const confirmarExclusao = (id: number) => setExcluirId(id);
+    const cancelarExclusao = () => setExcluirId(null);
     const executarExclusao = () => {
         if (excluirId !== null) {
             excluirTransacao(excluirId);
@@ -42,48 +71,32 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
         }
     };
 
-    const navigate = useNavigate(); // Hook para navegação - utilizado para navegar entre a página de criar categorias
-
-    const transacoesFiltradas = transacoes.filter((t) => {
-        const matchData = filtroData ? t.data === filtroData : true;
-        const matchTipo = filtroTipo ? t.tipo === filtroTipo : true;
-        const matchValorMin = filtroValorMin ? t.valor >= Number(filtroValorMin) : true;
-        const matchValorMax = filtroValorMax ? t.valor <= Number(filtroValorMax) : true;
-        const matchCategoria = filtroCategoria ? t.categoria === filtroCategoria : true;
-
-        const matchAba = abaAtiva === t.tipo;
-
-        return matchData && matchTipo && matchValorMin && matchValorMax && matchCategoria && matchAba;
-    });
-
     return (
         <>
+            <div id="movimentacao-page">
+                <PeriodoSelector />
+            </div>
+
             <button onClick={() => setMostrarFiltro(!mostrarFiltro)}>
                 {mostrarFiltro ? <BsFunnel /> : <BsFunnelFill />}
             </button>
+            <button
+            onClick={() => exportarCSV(transacoes)}
+            >
+                Exportar CSV
+            </button>
+            
             {mostrarFiltro && (
                 <div className="filtros">
-
-                    <h3>Filtros</h3>
-
-                    <input
-                        type="date"
-                        value={filtroData}
-                        onChange={(e) => setFiltroData(e.target.value)}
-                    />
-
-                    <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value as "" | "Entrada" | "Saída")}>
-                        <option value="">Todos os tipos</option>
-                        <option value="Entrada">Entradas</option>
-                        <option value="Saída">Saídas</option>
-                    </select>
-
-                    <input
-                        type="text"
-                        placeholder='Categoria'
+                    <select
                         value={filtroCategoria}
                         onChange={(e) => setFiltroCategoria(e.target.value)}
-                    />
+                    >
+                        <option value="">Todas as categorias</option>
+                        {categoriasDisponiveis.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
 
                     <input
                         type="number"
@@ -101,8 +114,6 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
 
                     <button
                         onClick={() => {
-                            setFiltroData("");
-                            setFiltroTipo("");
                             setFiltroValorMin("");
                             setFiltroValorMax("");
                             setFiltroCategoria("");
@@ -144,7 +155,7 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                                 <p className="categoria">{t.categoria}</p>
 
                                 {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}
-                                {t.recorrente && <span className="recorrente">Recorrente</span>}
+                                {t.recorrente ? (<span className="recorrente">Recorrente</span>) : null}
 
                                 <p className="valor">R$ {t.valor.toFixed(2)}</p>
                             </div>

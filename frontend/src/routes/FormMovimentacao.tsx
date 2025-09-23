@@ -38,7 +38,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     const [valor, setValor] = useState(""); // Recebe as informações do valor
     const [categoria, setCategoria] = useState(""); // Recebe as informações da categoria
 
-    const [modoLancamento, setModoLancamento] = useState<"" | "Parcelado" | "Recorrente">("");
+    const [modoLancamento, setModoLancamento] = useState<"A Vista" | "Parcelado" | "Recorrente">("A Vista");
     const [parcelas, setParcelas] = useState(1);
     const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
 
@@ -52,6 +52,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         setDescricao(""); // Reseta o campo Descrição para receber novos dados
         setValor(""); // Reseta o campo Valor para receber novos dados
         setCategoria(""); // Reseta o campo Categoria para receber novos dados
+        setModoLancamento("A Vista")
         setEditandoId(null);
     };
 
@@ -114,6 +115,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         }
 
         limparCampos();
+        navigate(-1);
     };
 
     const categoriasDisponiveis = tipo === "Entrada" ? categoriasEntrada : categoriasSaida;
@@ -122,72 +124,79 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         <>
             <div id="top-menu">
                 <button onClick={() => navigate("/movimentacao")}><BsArrowLeft />Voltar</button>
+                <h3>{editandoId ? "Editar Movimentação" : "Adicionar Movimentação"}</h3>
                 <button onClick={() => navigate("/categorias")}>Categorias</button>
             </div>
             <div id='form-transacao'>
-                <h3>{editandoId ? "Editar Movimentação" : "Adicionar Movimentação"}</h3>
+                <div className="linha-1">
+                    <input
+                        type="date"
+                        value={data}
+                        onChange={(e) => setData(e.target.value)} required
+                    />
 
-                <input
-                    type="date"
-                    value={data}
-                    onChange={(e) => setData(e.target.value)} required
-                />
+                    <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
+                        <option value="Entrada">Entrada</option>
+                        <option value="Saída">Saída</option>
+                    </select>
 
-                <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
-                    <option value="Entrada">Entrada</option>
-                    <option value="Saída">Saída</option>
-                </select>
+                    <select
+                        id="categoria"
+                        value={categoria}
+                        onChange={(e) => setCategoria(e.target.value)}>
+                        <option value="">Categoria</option>
+                        {categoriasDisponiveis.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                </div>
 
-                <input
-                    type="text"
-                    placeholder='Descrição'
-                    value={descricao}
-                    onChange={(e) => setDescricao(e.target.value)} required
-                />
+                <div id="descricao">
+                    <input
+                        type="text"
+                        placeholder='Descrição'
+                        value={descricao}
+                        onChange={(e) => setDescricao(e.target.value)} required
+                    />
+                </div>
 
-                <input
-                    type="number"
-                    placeholder='Valor'
-                    value={valor}
-                    onChange={(e) => setValor(e.target.value)} required
-                />
-
-                <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "" | "Parcelado" | "Recorrente")}>
-                    <option value=""></option>
-                    <option value="Parcelado">Parcelado</option>
-                    <option value="Recorrente">Recorrente</option>
-                </select>
-
-                {modoLancamento === "Parcelado" && (
+                <div id="pagamento-container">
                     <input
                         type="number"
-                        placeholder='Número de parcelas'
-                        value={parcelas}
-                        onChange={(e) => setParcelas(Number(e.target.value))}
+                        placeholder='Valor'
+                        value={valor}
+                        onChange={(e) => setValor(e.target.value)} required
                     />
-                )}
 
-                {modoLancamento === "Recorrente" && (
-                    <input
-                        type="number"
-                        placeholder='Meses de recorrência'
-                        value={mesesRecorrencia}
-                        onChange={(e) => setMesesRecorrencia(Number(e.target.value))}
-                    />
-                )}
+                    <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "A Vista" | "Parcelado" | "Recorrente")}>
+                        <option value="A Vista">A Vista</option>
+                        <option value="Parcelado">Parcelado</option>
+                        <option value="Recorrente">Recorrente</option>
+                    </select>
 
-                <select
-                    value={categoria}
-                    onChange={(e) => setCategoria(e.target.value)}>
-                    <option value="">Selecione uma categoria</option>
-                    {categoriasDisponiveis.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                </select>
+                    {modoLancamento === "Parcelado" && (
+                        <input
+                            type="number"
+                            placeholder='Número de parcelas'
+                            value={parcelas}
+                            onChange={(e) => setParcelas(Number(e.target.value))}
+                        />
+                    )}
 
-                <button onClick={adicionarOuEditarTransacao}>
-                    <BsFloppy2Fill /> {editandoId ? "Salvar edições" : "Salvar"}
-                </button>
+                    {modoLancamento === "Recorrente" && (
+                        <input
+                            type="number"
+                            placeholder='Meses de recorrência'
+                            value={mesesRecorrencia}
+                            onChange={(e) => setMesesRecorrencia(Number(e.target.value))}
+                        />
+                    )}
+                </div>
+                <div id="save-btn">
+                    <button onClick={adicionarOuEditarTransacao}>
+                        <BsFloppy2Fill /> {editandoId ? "Salvar edições" : "Salvar"}
+                    </button>
+                </div>
             </div>
         </>
     )

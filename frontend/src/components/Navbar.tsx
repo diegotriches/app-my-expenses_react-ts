@@ -6,7 +6,7 @@ import "./Navbar.css";
 const Navbar = () => {
     return (
         <nav>
-            <h1><BsCashCoin /> MyExpenses</h1>
+            <h1><BsCashCoin id="logo" /> MyExpenses</h1>
             <div className="nav-links">
                 <NavLink to="/" end><BsHouse className="icon" />Visão Geral</NavLink>
                 <NavLink to="/movimentacao"><BsArrowLeftRight className="icon" />Movimentação</NavLink>
