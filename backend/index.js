@@ -14,21 +14,31 @@ const db = new sqlite3.Database("./finance.db", (err) => {
     else console.log("Banco conectado!");
 });
 
-// Criar tabela se não existir
+// Criar tabelas se não existirem
 db.run(`
     CREATE TABLE IF NOT EXISTS transacoes(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    data TEXT,
-    tipo TEXT,
-    descricao TEXT,
-    valor REAL,
-    categoria TEXT,
-    parcela TEXT,
-    recorrente INTEGER
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        data TEXT,
+        tipo TEXT,
+        descricao TEXT,
+        valor REAL,
+        categoria TEXT,
+        parcela TEXT,
+        recorrente INTEGER
     )
-    `);
+`);
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS categorias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        tipo TEXT CHECK(tipo IN ('Entrada', 'Saída')) NOT NULL
+    )
+`);
 
 // Rotas
+
+// Listar todas as transações
 app.get("/transacoes", (req, res) => {
     db.all("SELECT * FROM transacoes", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -36,8 +46,18 @@ app.get("/transacoes", (req, res) => {
     });
 });
 
+// Listar todas as categorias
+app.get("/categorias", (req, res) => {
+    db.all("SELECT * FROM categorias", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Adicionar transação
 app.post("/transacoes", (req, res) => {
     const { data, tipo, descricao, valor, categoria, parcela, recorrente } = req.body;
+
     db.run(
         "INSERT INTO transacoes (data, tipo, descricao, valor, categoria, parcela, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [data, tipo, descricao, valor, categoria, parcela, recorrente ? 1 : 0],
@@ -48,20 +68,40 @@ app.post("/transacoes", (req, res) => {
     );
 });
 
+// Adicionar categoria
+app.post("/categorias", (req, res) => {
+    const { nome, tipo } = req.body;
+
+    if (!nome || !tipo) {
+        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
+    }
+
+    db.run(
+        "INSERT INTO categorias (nome, tipo) VALUES (?, ?)",
+        [nome, tipo],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: this.lastID, nome, tipo });
+        }
+    );
+});
+
+// Atualizar transação
 app.put("/transacoes/:id", (req, res) => {
     const { id } = req.params;
     const { data, tipo, descricao, valor, categoria, parcela, recorrente } = req.body;
 
     db.run(
         "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, parcela = ?, recorrente = ? WHERE id = ?",
-        [id, data, tipo, descricao, valor, categoria, parcela, recorrente],
+        [data, tipo, descricao, valor, categoria, parcela, recorrente ? 1 : 0, id],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id, data, tipo, descricao, valor, categoria, parcela, recorrente });
+            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, parcela, recorrente });
         }
     );
 });
 
+// Excluir transação
 app.delete("/transacoes/:id", (req, res) => {
     const { id } = req.params;
     db.run("DELETE FROM transacoes WHERE id = ?", id, function (err) {
@@ -72,5 +112,5 @@ app.delete("/transacoes/:id", (req, res) => {
 
 // Servidor
 app.listen(5000, () => {
-    console.log("Servidor rodando em http://localhost:5000")
+    console.log("Servidor rodando em http://localhost:5000");
 });

@@ -1,101 +1,81 @@
-/* Container principal */
-nav {
+/* Estrutura base */
+.navbar {
+  background: #1e293b;
+  color: #fff;
+  padding: 0.8rem 1rem;
+  display: flex;
+  border-radius: 5px;
+  justify-content: space-between;
+}
+
+.navbar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: #888;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  position: sticky;
-  top: 0;
-  border-radius: 15px;
-  z-index: 1000;
+  gap: 0.4rem;
 }
 
-/* Logo / título */
-#logo {
-  font-size: 1.6rem;
-  position: relative;
-  top: 6px;
-  left: -6px;
-}
-
-nav h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-  letter-spacing: 1px;
-  margin: 0;
-  color: #fff;
-}
-
-/* Links container */
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
-/* Cada link */
 .nav-links a {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  color: #cbd5e1;
   text-decoration: none;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-  padding-bottom: 0.2rem;
-  border-bottom: 2px solid transparent;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.3s;
 }
 
-/* Ícones */
-.nav-links .icon {
-  font-size: 1.2rem;
-}
-
-/* Hover */
-.nav-links a:hover {
-  color: #fff;
-  border-bottom: 2px solid #ddd;
-}
-
-/* Link ativo */
 .nav-links a.active {
+  background: #334155;
   color: #fff;
-  border-bottom: 2px solid #ddd;
-  font-weight: 600;
+}
+
+.nav-links a:hover {
+  background: #475569;
+  color: #fff;
+}
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  nav {
+  .navbar {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 1rem;
   }
-
+  
   .nav-links {
+    display: none;
     flex-direction: column;
-    gap: 0.8rem;
-    margin-top: 0.8rem;
+    background: #1e293b;
     width: 100%;
+    padding: 1rem 0;
   }
 
-  .nav-links a {
-    width: 100%;
-    padding: 0.6rem;
-    border-radius: 6px;
+  .nav-links.ativo {
+    display: flex;
   }
 
-  .nav-links a:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-bottom: 2px solid transparent;
-  }
-
-  .nav-links a.active {
-    background: rgba(255, 255, 255, 0.25);
-    border-bottom: 2px solid transparent;
+  .menu-btn {
+    display: block;
   }
 }

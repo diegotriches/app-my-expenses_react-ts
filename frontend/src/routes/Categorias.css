@@ -13,14 +13,17 @@
 
 #top-btn {
   display: flex;
-  justify-content: space-between;
-  max-width: 650px;
-  margin: 1rem auto;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  color: #333;
+  padding: 5px 0;
 }
 
-/* Botão de voltar */
 #top-btn button {
   display: flex;
+  position: absolute;
+  left: 0;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem;
@@ -28,7 +31,6 @@
   border: 1px solid #888;
   border-radius: 0.5rem;
   color: #333;
-  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -37,15 +39,6 @@
   background: #f0f8ff;
   border: 1px solid #007bff;
   color: #1565c0;
-}
-
-/* Título */
-#add-categoria h2 {
-  margin: 0.5rem 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
 }
 
 /* Inputs e selects */
@@ -70,7 +63,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: #1565c0;
   color: #fff;
   border: none;

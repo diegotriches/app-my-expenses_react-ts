@@ -10,20 +10,19 @@ import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
 import Categorias from "./routes/Categorias";
-import FormMovimentacao from "./routes/FormMovimentacao"
+import FormMovimentacao from "./routes/FormMovimentacao";
 import FloatingButton from "./components/FloatingButton";
 
 function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
 
-  useEffect(() => { // Carrega o Banco de Dados ao iniciar
+  useEffect(() => {
     axios
       .get("http://localhost:5000/transacoes")
       .then((res) => {
-        if (Array.isArray(res.data)) {
-          setTransacoes(res.data);
-        } else {
-          console.error("Resposta ineseperada do backend:", res.data);
+        if (Array.isArray(res.data)) setTransacoes(res.data);
+        else {
+          console.error("Resposta inesperada do backend:", res.data);
           setTransacoes([]);
         }
       })
@@ -33,51 +32,66 @@ function App() {
       });
   }, []);
 
-  const adicionarTransacao = async (nova: Transacao) => { // Adicionar transação
-    const res = await axios.post("http://localhost:5000/transacoes", nova);
-    setTransacoes(prev => [...prev, res.data]);
+  // Adicionar nova transação
+  const adicionarTransacao = async (nova: Transacao) => {
+    try {
+      const res = await axios.post("http://localhost:5000/transacoes", nova);
+      setTransacoes(prev => [...prev, res.data]);
+    } catch (err) {
+      console.error("Erro ao adicionar transação:", err);
+    }
   };
 
-  const editarTransacao = async (atualizada: Transacao) => { // Editar transação
-    const res = await axios.put(`http://localhost:5000/transacoes/${atualizada.id}`, atualizada);
-    setTransacoes(prev => prev.map((t) => (t.id === atualizada.id ? res.data : t))
-    );
+  // Editar transação existente
+  const editarTransacao = async (atualizada: Transacao) => {
+    try {
+      const res = await axios.put(`http://localhost:5000/transacoes/${atualizada.id}`, atualizada);
+      setTransacoes(prev => prev.map(t => t.id === atualizada.id ? res.data : t));
+    } catch (err) {
+      console.error("Erro ao editar transação:", err);
+    }
   };
 
+  // Excluir transação
   const excluirTransacao = async (id: number) => {
-    await axios.delete(`http://localhost:5000/transacoes/${id}`);
-    setTransacoes(prev => prev.filter(t => t.id !== id));
+    try {
+      await axios.delete(`http://localhost:5000/transacoes/${id}`);
+      setTransacoes(prev => prev.filter(t => t.id !== id));
+    } catch (err) {
+      console.error("Erro ao excluir transação:", err);
+    }
   };
 
   return (
     <div>
       <PeriodoProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home transacoes={transacoes} />} />
-          <Route
-            path="/movimentacao"
-            element={<Movimentacao
-              transacoes={transacoes}
-              excluirTransacao={excluirTransacao}
-            />}
-          />
-          <Route path="/relatorios" element={<Relatorios transacoes={transacoes} />} />
-          <Route
-            path="/form-movimentacao/:id?"
-            element={<FormMovimentacao
-              transacoes={transacoes}
-              adicionarTransacao={adicionarTransacao}
-              editarTransacao={editarTransacao}
-            />} />
-          <Route path="/categorias" element={<Categorias />} />
-        </Routes>
-        <FloatingButton />
-      </BrowserRouter>
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home transacoes={transacoes} />} />
+            <Route
+              path="/movimentacao"
+              element={<Movimentacao
+                transacoes={transacoes}
+                excluirTransacao={excluirTransacao}
+              />}
+            />
+            <Route path="/relatorios" element={<Relatorios transacoes={transacoes} />} />
+            <Route
+              path="/form-movimentacao/:id?"
+              element={<FormMovimentacao
+                transacoes={transacoes}
+                adicionarTransacao={adicionarTransacao}
+                editarTransacao={editarTransacao}
+              />}
+            />
+            <Route path="/categorias" element={<Categorias />} />
+          </Routes>
+          <FloatingButton />
+        </BrowserRouter>
       </PeriodoProvider>
     </div>
   );
 }
 
-export default App
+export default App;

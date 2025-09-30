@@ -1,32 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categoriasEntrada, categoriasSaida, adicionarCategoria } from '../types/categorias';
 
-import { BsPlusCircle } from "react-icons/bs";
-import { BsArrowLeft } from "react-icons/bs";
+import { BsPlusCircle, BsArrowLeft } from "react-icons/bs";
 
 import './Categorias.css'
 
 function Categorias() {
     const [tipo, setTipo] = useState<"Entrada" | "Saída">("Entrada");
     const [novaCategoria, setNovaCategoria] = useState("");
+    const [categorias, setCategorias] = useState<{ id: number; nome: string; tipo: string }[]>([]);
     const navigate = useNavigate(); // Hook para navegar entre a página de criar novas categorias
 
-    const handleAdicionar = () => {
+    useEffect(() => {
+        fetch("http://localhost:5000/categorias")
+        .then(res => res.json())
+        .then(data => setCategorias(data))
+        .catch(err => console.error("Erro ao carregar categorias:", err));
+    }, []);
+
+    const handleAdicionar = async () => {
         if (novaCategoria.trim()) {
-            adicionarCategoria(tipo, novaCategoria.trim());
+            try {
+                const response = await fetch("http://localhost:5000/categorias", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome: novaCategoria.trim(), tipo })
+                });
+                const data = await response.json();
+            
+            setCategorias([...categorias, data]);
             setNovaCategoria("");
             alert(`Categoria "${novaCategoria}" adicionada em ${tipo}`);
+            } catch (error) {
+                console.error("Erro ao adicionar categoria:", error);
+            }
         }
-    }
+    };
 
     return (
         <div>
+            <div id="add-categoria">
             <div id="top-btn">
                 <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
+                <h3>Gerenciar Categorias</h3>
             </div>
-            <div id="add-categoria">
-                <h2>Gerenciar Categorias</h2>
 
                 <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
                     <option value="Entrada">Entrada</option>
@@ -47,16 +64,16 @@ function Categorias() {
                 <h3>Categorias de Entrada</h3>
 
                 <ul>
-                    {categoriasEntrada.map((cat) => (
-                        <li key={cat}>{cat}</li>
+                    {categorias.filter(cat => cat.tipo === "Entrada").map((cat) => (
+                        <li key={cat.id}>{cat.nome}</li>
                     ))}
                 </ul>
 
                 <h3>Categorias de Saída</h3>
 
                 <ul>
-                    {categoriasSaida.map((cat) => (
-                        <li key={cat}>{cat}</li>
+                    {categorias.filter(cat => cat.tipo === "Saída").map((cat) => (
+                        <li key={cat.id}>{cat.nome}</li>
                     ))}
                 </ul>
             </div>
