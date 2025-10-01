@@ -23,7 +23,8 @@ db.run(`
         descricao TEXT,
         valor REAL,
         categoria TEXT,
-        parcela TEXT,
+        formaPagamento TEXT,
+        parcela INTEGER,
         recorrente INTEGER
     )
 `);
@@ -56,14 +57,14 @@ app.get("/categorias", (req, res) => {
 
 // Adicionar transação
 app.post("/transacoes", (req, res) => {
-    const { data, tipo, descricao, valor, categoria, parcela, recorrente } = req.body;
+    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente } = req.body;
 
     db.run(
-        "INSERT INTO transacoes (data, tipo, descricao, valor, categoria, parcela, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [data, tipo, descricao, valor, categoria, parcela, recorrente ? 1 : 0],
+        "INSERT INTO transacoes (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, data, tipo, descricao, valor, categoria, parcela, recorrente });
+            res.json({ id: this.lastID, data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente });
         }
     );
 });
@@ -89,14 +90,14 @@ app.post("/categorias", (req, res) => {
 // Atualizar transação
 app.put("/transacoes/:id", (req, res) => {
     const { id } = req.params;
-    const { data, tipo, descricao, valor, categoria, parcela, recorrente } = req.body;
+    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente } = req.body;
 
     db.run(
-        "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, parcela = ?, recorrente = ? WHERE id = ?",
-        [data, tipo, descricao, valor, categoria, parcela, recorrente ? 1 : 0, id],
+        "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ? WHERE id = ?",
+        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, id],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, parcela, recorrente });
+            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente });
         }
     );
 });

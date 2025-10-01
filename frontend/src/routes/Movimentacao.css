@@ -236,13 +236,14 @@
 /* Ajustes responsivos */
 @media (max-width: 768px) {
   .card-body {
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 3px;
     padding: 0.8rem;
   }
 
   .card-body .data {
+    width: 100%;
     margin-left: 0;
     font-size: 0.8rem;
     color: #444;
@@ -256,11 +257,13 @@
   .card-body .categoria,
   .card-body .parcela,
   .card-body .recorrente {
+    align-self: center;
     font-size: 0.7rem;
     padding: 0.15rem 0.5rem;
   }
 
   .card-body .valor {
+    width: 100%;
     font-size: 1.1rem;
     margin-right: 0;
     align-self: flex-end;

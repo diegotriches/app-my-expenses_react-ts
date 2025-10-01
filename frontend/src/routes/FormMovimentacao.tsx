@@ -22,6 +22,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     const [valor, setValor] = useState("");
     const [categoria, setCategoria] = useState("");
     const [categorias, setCategorias] = useState<{ id: number; nome: string; tipo: string }[]>([]);
+    const [formaPagamento, setFormaPagamento] = useState<"credito" | "debito" | "dinheiro" | "pix">("dinheiro");
     const [modoLancamento, setModoLancamento] = useState<"A Vista" | "Parcelado" | "Recorrente">("A Vista");
     const [parcelas, setParcelas] = useState(1);
     const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
@@ -46,15 +47,12 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         setTipo(transacao.tipo);
         setDescricao(transacao.descricao);
         setValor(transacao.valor.toString());
-        // setCategoria aqui: mantemos o valor do banco — não vamos limpar depois
         setCategoria(transacao.categoria ?? "");
+        setFormaPagamento(transacao.formaPagamento);
         if (transacao.parcela) setModoLancamento("Parcelado");
         else if (transacao.recorrente) setModoLancamento("Recorrente");
         else setModoLancamento("A Vista");
     }, [id, transacoes]);
-
-    // **REMOVIDO**: efeito que limpava categoria ao trocar tipo.
-    // Agora, vamos limpar a categoria somente quando o usuário realmente trocar o tipo no select.
 
     const limparCampos = () => {
         setTipo("Entrada");
@@ -62,6 +60,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         setDescricao("");
         setValor("");
         setCategoria("");
+        setFormaPagamento("dinheiro");
         setModoLancamento("A Vista");
         setParcelas(1);
         setMesesRecorrencia(1);
@@ -82,6 +81,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                     descricao,
                     valor: valorNumber,
                     categoria,
+                    formaPagamento,
                     parcela: modoLancamento === "Parcelado" ? `${parcelas}x` : undefined,
                     recorrente: modoLancamento === "Recorrente" ? true : undefined
                 };
@@ -100,6 +100,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber / parcelas,
                             categoria,
+                            formaPagamento,
                             parcela: `${i}/${parcelas}`
                         });
                     }
@@ -114,6 +115,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber,
                             categoria,
+                            formaPagamento,
                             recorrente: true
                         });
                     }
@@ -124,7 +126,8 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                         tipo,
                         descricao,
                         valor: valorNumber,
-                        categoria
+                        categoria,
+                        formaPagamento
                     });
                 }
             }
@@ -185,6 +188,16 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                         value={valor}
                         onChange={(e) => setValor(e.target.value)} required
                     />
+
+                    <select
+                        id="formaPagamento"
+                        value={formaPagamento}
+                        onChange={(e) => setFormaPagamento(e.target.value as "credito" | "debito" | "dinheiro" | "pix" )}>
+                        <option value="credito">Cartão de Crédito</option>
+                        <option value="debito">Cartão de Débito</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="pix">Pix</option>
+                    </select>
 
                     <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "A Vista" | "Parcelado" | "Recorrente")}>
                         <option value="A Vista">A Vista</option>

@@ -6,7 +6,7 @@ import { usePeriodo } from '../components/PeriodoContext';
 import type { Transacao } from '../types/transacao';
 import PeriodoSelector from "../components/PeriodoSelector";
 
-import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill } from "react-icons/bs";
+import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill, BsCreditCard2Back, BsCash, BsBank, BsFillXDiamondFill } from "react-icons/bs";
 
 import './Movimentacao.css'
 
@@ -18,11 +18,11 @@ interface Props {
 function Movimentacao({ transacoes, excluirTransacao }: Props) {
     const { mesSelecionado, anoSelecionado } = usePeriodo();
 
-    const [filtroValorMin, setFiltroValorMin] = useState(""); 
-    const [filtroValorMax, setFiltroValorMax] = useState(""); 
-    const [filtroCategoria, setFiltroCategoria] = useState(""); 
-    const [mostrarFiltro, setMostrarFiltro] = useState(false); 
-    const [abaAtiva, setAbaAtiva] = useState<"Entrada" | "Saída">("Entrada"); 
+    const [filtroValorMin, setFiltroValorMin] = useState("");
+    const [filtroValorMax, setFiltroValorMax] = useState("");
+    const [filtroCategoria, setFiltroCategoria] = useState("");
+    const [mostrarFiltro, setMostrarFiltro] = useState(false);
+    const [abaAtiva, setAbaAtiva] = useState<"Entrada" | "Saída">("Entrada");
     const [hoverId, setHoverId] = useState<number | null>(null);
     const [excluirId, setExcluirId] = useState<number | null>(null);
 
@@ -70,6 +70,13 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
             excluirTransacao(excluirId);
             setExcluirId(null);
         }
+    };
+
+    const iconesPagamento = {
+        credito: <BsCreditCard2Back />,
+        debito: <BsBank />,
+        dinheiro: <BsCash />,
+        pix: <BsFillXDiamondFill />,
     };
 
     return (
@@ -148,6 +155,7 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                             <div className="card-body">
                                 <span className="data">{new Date(t.data).toLocaleDateString("pt-BR")}</span>
                                 <p className="descricao">{t.descricao}</p>
+                                <p>{iconesPagamento[t.formaPagamento]}</p>
                                 <p className="categoria">{t.categoria}</p>
 
                                 {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}
