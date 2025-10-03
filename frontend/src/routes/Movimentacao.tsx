@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from "axios";
 
 import { exportarCSV } from '../utils/exportCSV';
 import { usePeriodo } from '../components/PeriodoContext';
 import type { Transacao } from '../types/transacao';
 import PeriodoSelector from "../components/PeriodoSelector";
 
-import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill, BsCreditCard2Back, BsCash, BsBank, BsFillXDiamondFill } from "react-icons/bs";
+import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill, BsCreditCard2Back, BsCash, BsFillXDiamondFill, BsThreeDotsVertical, BsFiletypeCsv } from "react-icons/bs";
 
 import './Movimentacao.css'
 
@@ -16,6 +17,8 @@ interface Props {
 }
 
 function Movimentacao({ transacoes, excluirTransacao }: Props) {
+    const navigate = useNavigate();
+
     const { mesSelecionado, anoSelecionado } = usePeriodo();
 
     const [filtroValorMin, setFiltroValorMin] = useState("");
@@ -26,7 +29,16 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
     const [hoverId, setHoverId] = useState<number | null>(null);
     const [excluirId, setExcluirId] = useState<number | null>(null);
 
-    const navigate = useNavigate();
+    const [menuAberto, setMenuAberto] = useState(false);
+
+    const [cartoes, setCartoes] = useState<{ id: number; nome: string; tipo: string }[]>([]);
+
+    useEffect(() => {
+        axios.get("http://localhost:5000/cartoes")
+            .then(res => setCartoes(res.data))
+            .catch(err => console.error("Erro ao carregar cartões:", err));
+    }, []);
+
 
     // Filtragem das transações
     const transacoesFiltradas = transacoes.filter((t) => {
@@ -59,6 +71,19 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
         )
     );
 
+    const getNomeFormaPagamento = (formaPagamento: string) => {
+        if (formaPagamento === "dinheiro") return <BsCash />;
+        if (formaPagamento === "pix") return <BsFillXDiamondFill />;
+
+        if (formaPagamento.startsWith("cartao-")) {
+            const id = Number(formaPagamento.split("-")[1]);
+            const cartao = cartoes.find(c => c.id === id);
+            return cartao ? `${cartao.nome} (${cartao.tipo})` : "Cartão";
+        }
+
+        return formaPagamento;
+    };
+
     useEffect(() => {
         setFiltroCategoria("");
     }, [abaAtiva]);
@@ -72,28 +97,11 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
         }
     };
 
-    const iconesPagamento = {
-        credito: <BsCreditCard2Back />,
-        debito: <BsBank />,
-        dinheiro: <BsCash />,
-        pix: <BsFillXDiamondFill />,
-    };
-
     return (
         <>
             <div id="movimentacao-page">
                 <PeriodoSelector />
             </div>
-
-            <button onClick={() => setMostrarFiltro(!mostrarFiltro)}>
-                {mostrarFiltro ? <BsFunnel /> : <BsFunnelFill />}
-            </button>
-            <button
-                onClick={() => exportarCSV(transacoes)}
-            >
-                Exportar CSV
-            </button>
-
             {mostrarFiltro && (
                 <div className="filtros">
                     <select
@@ -130,7 +138,26 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
             )}
 
             <div id="mov-list">
-                <h3>Lista de Movimentações</h3>
+                <div id="top-menu">
+                    <button onClick={() => setMostrarFiltro(!mostrarFiltro)}>
+                        {mostrarFiltro ? <BsFunnel /> : <BsFunnelFill />}
+                    </button>
+
+                    <h3>Lista de Movimentações</h3>
+
+                    <div className="menu-suspenso">
+                        <button onClick={() => setMenuAberto(!menuAberto)}><BsThreeDotsVertical /></button>
+                        {menuAberto && (
+                            <div className="menu-opcoes">
+                                <button
+                                    onClick={() => exportarCSV(transacoes)}
+                                >
+                                    <BsFiletypeCsv />Exportar
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 <div className="abas">
                     <button
@@ -155,7 +182,7 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                             <div className="card-body">
                                 <span className="data">{new Date(t.data).toLocaleDateString("pt-BR")}</span>
                                 <p className="descricao">{t.descricao}</p>
-                                <p>{iconesPagamento[t.formaPagamento]}</p>
+                                <p>{getNomeFormaPagamento(t.formaPagamento)}</p>
                                 <p className="categoria">{t.categoria}</p>
 
                                 {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}

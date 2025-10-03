@@ -1,3 +1,14 @@
+#form-transacao {
+  display: flex;
+  background-color: #fff;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 20px auto;
+  flex-direction: column;
+  gap: 12px; /* espaçamento entre blocos */
+  padding: 1.2rem;
+}
+
 #top-menu {
   display: flex;
   justify-content: space-between;
@@ -25,16 +36,32 @@
   color: #1565c0;
 }
 
-/* --------------------- FORMULÁRIO --------------------- */
-#form-transacao {
-  display: flex;
-  background-color: #fff;
-  border-radius: 10px;
-  max-width: 600px;
-  margin: 20px auto;
-  flex-direction: column;
-  gap: 12px; /* espaçamento entre blocos */
-  padding: 1.2rem;
+.menu-suspenso {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.menu-opcoes {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 100;
+}
+
+.menu-item {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+}
+
+.menu-item:hover {
+  background: #f0f0f0;
 }
 
 /* Linha 1 - data + tipo + categoria */

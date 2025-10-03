@@ -7,7 +7,7 @@ export default function FloatingButton() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const rotasPermitidas = ["/movimentacao", "/", "/relatorios"]; // Rotas onde o botão deve aparecer
+    const rotasPermitidas = ["/", "/movimentacao", "/relatorios"]; // Rotas onde o botão deve aparecer
 
     if (!rotasPermitidas.includes(location.pathname)) { // Verifica se a rota atual está na lista
         return null;

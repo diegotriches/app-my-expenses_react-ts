@@ -13,9 +13,9 @@ function Categorias() {
 
     useEffect(() => {
         fetch("http://localhost:5000/categorias")
-        .then(res => res.json())
-        .then(data => setCategorias(data))
-        .catch(err => console.error("Erro ao carregar categorias:", err));
+            .then(res => res.json())
+            .then(data => setCategorias(data))
+            .catch(err => console.error("Erro ao carregar categorias:", err));
     }, []);
 
     const handleAdicionar = async () => {
@@ -27,10 +27,10 @@ function Categorias() {
                     body: JSON.stringify({ nome: novaCategoria.trim(), tipo })
                 });
                 const data = await response.json();
-            
-            setCategorias([...categorias, data]);
-            setNovaCategoria("");
-            alert(`Categoria "${novaCategoria}" adicionada em ${tipo}`);
+
+                setCategorias([...categorias, data]);
+                setNovaCategoria("");
+                alert(`Categoria "${novaCategoria}" adicionada em ${tipo}`);
             } catch (error) {
                 console.error("Erro ao adicionar categoria:", error);
             }
@@ -40,10 +40,10 @@ function Categorias() {
     return (
         <div>
             <div id="add-categoria">
-            <div id="top-btn">
-                <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
-                <h3>Gerenciar Categorias</h3>
-            </div>
+                <div id="top-btn">
+                    <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
+                    <h3>Gerenciar Categorias</h3>
+                </div>
 
                 <select value={tipo} onChange={(e) => setTipo(e.target.value as "Entrada" | "Saída")}>
                     <option value="Entrada">Entrada</option>

@@ -10,6 +10,7 @@ import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
 import Categorias from "./routes/Categorias";
+import Cartoes from "./routes/Cartoes";
 import FormMovimentacao from "./routes/FormMovimentacao";
 import FloatingButton from "./components/FloatingButton";
 
@@ -86,6 +87,7 @@ function App() {
               />}
             />
             <Route path="/categorias" element={<Categorias />} />
+            <Route path="/cartoes" element={<Cartoes />} />
           </Routes>
           <FloatingButton />
         </BrowserRouter>

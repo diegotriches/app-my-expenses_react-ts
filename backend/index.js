@@ -25,7 +25,8 @@ db.run(`
         categoria TEXT,
         formaPagamento TEXT,
         parcela INTEGER,
-        recorrente INTEGER
+        recorrente INTEGER,
+        cartaoId INTEGER
     )
 `);
 
@@ -36,6 +37,24 @@ db.run(`
         tipo TEXT CHECK(tipo IN ('Entrada', 'Saída')) NOT NULL
     )
 `);
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS cartoes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        tipo TEXT CHECK(tipo IN ('Crédito', 'Débito')) NOT NULL,
+        limite REAL
+    )
+`);
+
+db.run(`
+    ALTER TABLE transacoes ADD COLUMN cartaoId INTEGER REFERENCES cartoes(id)
+`, (err) => {
+    if (err && !err.message.includes("duplicate column name")) {
+        console.error("Erro ao adicionar coluna cartaoId:", err.message);
+    }
+});
+
 
 // Rotas
 
@@ -55,16 +74,26 @@ app.get("/categorias", (req, res) => {
     });
 });
 
+// Listar todos os cartões
+app.get("/cartoes", (req, res) => {
+    db.all("SELECT * FROM cartoes", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 // Adicionar transação
 app.post("/transacoes", (req, res) => {
-    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente } = req.body;
+    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
 
     db.run(
-        "INSERT INTO transacoes (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0],
+        `INSERT INTO transacoes 
+        (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId || null],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente });
+            res.json({ id: this.lastID, data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId });
         }
     );
 });
@@ -87,17 +116,53 @@ app.post("/categorias", (req, res) => {
     );
 });
 
+// Adicionar cartão
+app.post("/cartoes", (req, res) => {
+    const { nome, tipo, limite } = req.body;
+
+    if (!nome || !tipo) {
+        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
+    }
+
+    db.run(
+        "INSERT INTO cartoes (nome, tipo, limite) VALUES (?, ?, ?)",
+        [nome, tipo, limite || null],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: this.lastID, nome, tipo, limite });
+        }
+    );
+});
+
 // Atualizar transação
 app.put("/transacoes/:id", (req, res) => {
     const { id } = req.params;
-    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente } = req.body;
+    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
 
     db.run(
-        "UPDATE transacoes SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ? WHERE id = ?",
-        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, id],
+        `UPDATE transacoes 
+        SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ?, cartaoId = ? 
+        WHERE id = ?`,
+        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId || null, id],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente });
+            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId });
+        }
+    );
+});
+
+
+// Atualizar cartão
+app.put("/cartoes/:id", (req, res) => {
+    const { id } = req.params;
+    const { nome, tipo, limite } = req.body;
+
+    db.run(
+        "UPDATE cartoes SET nome = ?, tipo = ?, limite = ? WHERE id = ?",
+        [nome, tipo, limite || null, id],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: Number(id), nome, tipo, limite });
         }
     );
 });
@@ -106,6 +171,15 @@ app.put("/transacoes/:id", (req, res) => {
 app.delete("/transacoes/:id", (req, res) => {
     const { id } = req.params;
     db.run("DELETE FROM transacoes WHERE id = ?", id, function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ deleted: this.changes });
+    });
+});
+
+// Excluir cartão
+app.delete("/cartoes/:id", (req, res) => {
+    const { id } = req.params;
+    db.run("DELETE FROM cartoes WHERE id = ?", id, function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ deleted: this.changes });
     });

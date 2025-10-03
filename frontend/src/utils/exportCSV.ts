@@ -6,10 +6,10 @@ export function exportarCSV (transacoes: Transacao[], nomeArquivo = "movimentaco
         return;
     }
 
-    const headers = ["ID", "Data", "Tipo", "Descrição", "Valor", "Categoria", "Parcela", "Recorrente"];
+    const headers = ["ID", "Data", "Tipo", "Descrição", "Valor", "Categoria", "Forma de Pagamento", "Parcela", "Recorrente"];
 
     const linhas = transacoes.map((t) => [
-        t.id, t.data, t.tipo, t.descricao, t.valor.toString().replace(".", ","), t.categoria, t.parcela || "", t.recorrente ? "Sim" : "Não",
+        t.id, t.data, t.tipo, t.descricao, t.valor.toString().replace(".", ","), t.categoria, t.formaPagamento, t.parcela || "", t.recorrente ? "Sim" : "Não",
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...linhas.map((linha) => linha.join(";"))].join("\n");

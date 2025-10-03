@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import type { Transacao } from '../types/transacao';
+import axios from "axios";
 
-import { BsFloppy2Fill, BsArrowLeft } from "react-icons/bs";
+import { BsFloppy2Fill, BsArrowLeft, BsThreeDotsVertical } from "react-icons/bs";
 
 import './FormMovimentacao.css'
+
+type FormaPagamento = "credito" | "debito" | "dinheiro" | "pix";
 
 interface Props {
     transacoes: Transacao[];
@@ -22,11 +25,17 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     const [valor, setValor] = useState("");
     const [categoria, setCategoria] = useState("");
     const [categorias, setCategorias] = useState<{ id: number; nome: string; tipo: string }[]>([]);
-    const [formaPagamento, setFormaPagamento] = useState<"credito" | "debito" | "dinheiro" | "pix">("dinheiro");
+    
+    const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>("dinheiro");
+    
     const [modoLancamento, setModoLancamento] = useState<"A Vista" | "Parcelado" | "Recorrente">("A Vista");
     const [parcelas, setParcelas] = useState(1);
     const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
     const [editandoId, setEditandoId] = useState<number | null>(null);
+    const [cartoes, setCartoes] = useState<{ id: number; nome: string; tipo: string }[]>([]);
+
+
+    const [menuAberto, setMenuAberto] = useState(false);
 
     // Carregar categorias do backend
     useEffect(() => {
@@ -35,6 +44,14 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
             .then(data => setCategorias(data))
             .catch(err => console.error("Erro ao carregar categorias:", err));
     }, []);
+
+    // Carregar cartões do backend
+    useEffect(() => {
+        axios.get("http://localhost:5000/cartoes")
+            .then(res => setCartoes(res.data))
+            .catch(err => console.error("Erro ao carregar cartões:", err));
+    }, []);
+
 
     // Preencher campos se estiver editando (leva em conta o estado das categorias também)
     useEffect(() => {
@@ -147,7 +164,19 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                 <div id="top-menu">
                     <button onClick={() => navigate("/movimentacao")}><BsArrowLeft />Voltar</button>
                     <h3>{editandoId ? "Editar Movimentação" : "Nova Movimentação"}</h3>
-                    <button onClick={() => navigate("/categorias")}>Categorias</button>
+                    <div className="menu-suspenso">
+                        <button onClick={() => setMenuAberto(!menuAberto)}><BsThreeDotsVertical /></button>
+                        {menuAberto && (
+                            <div className="menu-opcoes">
+                                <Link to="/categorias" className="menu-item">
+                                    Categorias
+                                </Link>
+                                <Link to="/cartoes" className="menu-item">
+                                    Cartões
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className="linha-1">
                     <input
@@ -192,12 +221,20 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                     <select
                         id="formaPagamento"
                         value={formaPagamento}
-                        onChange={(e) => setFormaPagamento(e.target.value as "credito" | "debito" | "dinheiro" | "pix" )}>
-                        <option value="credito">Cartão de Crédito</option>
-                        <option value="debito">Cartão de Débito</option>
+                        onChange={(e) => setFormaPagamento(e.target.value as FormaPagamento)}
+                    >
                         <option value="dinheiro">Dinheiro</option>
                         <option value="pix">Pix</option>
+
+                        <optgroup label="Cartões">
+                            {cartoes.map(c => (
+                                <option key={c.id} value={`cartao-${c.id}`}>
+                                    {c.nome} ({c.tipo})
+                                </option>
+                            ))}
+                        </optgroup>
                     </select>
+
 
                     <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "A Vista" | "Parcelado" | "Recorrente")}>
                         <option value="A Vista">A Vista</option>

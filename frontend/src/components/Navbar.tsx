@@ -25,7 +25,7 @@ const Navbar = () => {
 
       <div className={`nav-links ${menuAberto ? "ativo" : ""}`}>
         <NavLink to="/" end onClick={() => setMenuAberto(false)}>
-          <BsHouse className="icon" />Visão Geral
+          <BsHouse className="icon" />Home
         </NavLink>
         <NavLink to="/movimentacao" onClick={() => setMenuAberto(false)}>
           <BsArrowLeftRight className="icon" />Movimentação
