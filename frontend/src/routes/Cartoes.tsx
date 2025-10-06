@@ -2,73 +2,199 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
-import { BsPlusCircle, BsArrowLeft } from "react-icons/bs";
+import { BsPlusCircle, BsArrowLeft, BsTrash, BsPencil } from "react-icons/bs";
 
 interface Cartao {
-    id: number;
-    nome: string;
-    tipo: string; // "Crédito" | "Débito"
+  id: number;
+  nome: string;
+  tipo: string; // "Crédito" | "Débito"
+  limite?: number | null;
+  diaFechamento?: number | null;
+  diaVencimento?: number | null;
 }
 
 function Cartoes() {
-    const [cartoes, setCartoes] = useState<Cartao[]>([]);
-    const [nome, setNome] = useState("");
-    const [tipo, setTipo] = useState("Crédito");
+  const [cartoes, setCartoes] = useState<Cartao[]>([]);
+  const [nome, setNome] = useState("");
+  const [tipo, setTipo] = useState("Crédito");
+  const [limite, setLimite] = useState<number | "">("");
+  const [diaFechamento, setDiaFechamento] = useState<number | "">("");
+  const [diaVencimento, setDiaVencimento] = useState<number | "">("");
 
-    const navigate = useNavigate();
+  const [editandoId, setEditandoId] = useState<number | null>(null);
 
-    // Carregar cartões
-    useEffect(() => {
-        axios.get("http://localhost:5000/cartoes")
-            .then(res => setCartoes(res.data))
-            .catch(err => console.error("Erro ao carregar cartões:", err));
-    }, []);
+  const navigate = useNavigate();
 
-    // Adicionar novo cartão
-    const adicionarCartao = () => {
-        if (!nome) return alert("Digite um nome para o cartão");
+  // Carregar cartões
+  useEffect(() => {
+    axios.get("http://localhost:5000/cartoes")
+      .then(res => setCartoes(res.data))
+      .catch(err => console.error("Erro ao carregar cartões:", err));
+  }, []);
 
-        axios.post("http://localhost:5000/cartoes", { nome, tipo })
-            .then(res => {
-                setCartoes([...cartoes, res.data]);
-                setNome("");
-                setTipo("Crédito");
-            })
-            .catch(err => console.error("Erro ao adicionar cartão:", err));
+  // Adicionar ou atualizar cartão
+  const salvarCartao = () => {
+    if (!nome) return alert("Digite um nome para o cartão");
+
+    const novoCartao = {
+      nome,
+      tipo,
+      limite: tipo === "Crédito" ? Number(limite) : null,
+      diaFechamento: tipo === "Crédito" ? Number(diaFechamento) : null,
+      diaVencimento: tipo === "Crédito" ? Number(diaVencimento) : null,
     };
 
-    return (
-        <>
-            <div id="add-categoria">
-                <div id="top-btn">
-                    <button onClick={() => navigate("/form-movimentacao")}><BsArrowLeft /> Voltar</button>
-                    <h3>Cadastro de Cartões</h3>
-                </div>
-                <input
-                    type="text"
-                    placeholder="Nome do cartão"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                />
-                <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                    <option value="Crédito">Crédito</option>
-                    <option value="Débito">Débito</option>
-                </select>
-                <button onClick={adicionarCartao}><BsPlusCircle /></button>
-            </div>
+    if (editandoId) {
+      // Atualizar
+      axios
+        .put(`http://localhost:5000/cartoes/${editandoId}`, novoCartao)
+        .then((res) => {
+          setCartoes(
+            cartoes.map((c) => (c.id === editandoId ? res.data : c))
+          );
+          resetForm();
+        })
+        .catch((err) => console.error("Erro ao editar cartão:", err));
+    } else {
+      // Adicionar
+      axios
+        .post("http://localhost:5000/cartoes", novoCartao)
+        .then((res) => {
+          setCartoes([...cartoes, res.data]);
+          resetForm();
+        })
+        .catch((err) => console.error("Erro ao adicionar cartão:", err));
+    }
+  };
 
-            <div id="categoria-container">
-                <h3>Meus Cartões</h3>
-                <ul>
-                    {cartoes.map((c) => (
-                        <li key={c.id}>
-                            {c.nome} - {c.tipo}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </>
-    );
+  // Editar cartão
+  const editarCartao = (cartao: Cartao) => {
+    setEditandoId(cartao.id);
+    setNome(cartao.nome);
+    setTipo(cartao.tipo);
+    setLimite(cartao.limite ?? "");
+    setDiaFechamento(cartao.diaFechamento ?? "");
+    setDiaVencimento(cartao.diaVencimento ?? "");
+  };
+
+  // Excluir cartão
+  const excluirCartao = (id: number) => {
+    if (!window.confirm("Deseja realmente excluir este cartão?")) return;
+
+    axios
+      .delete(`http://localhost:5000/cartoes/${id}`)
+      .then(() => {
+        setCartoes(cartoes.filter((c) => c.id !== id));
+      })
+      .catch((err) => console.error("Erro ao excluir cartão:", err));
+  };
+
+  // Resetar formulário
+  const resetForm = () => {
+    setEditandoId(null);
+    setNome("");
+    setTipo("Crédito");
+    setLimite("");
+    setDiaFechamento("");
+    setDiaVencimento("");
+  };
+
+  return (
+    <>
+      <div id="add-categoria">
+        <div id="top-btn">
+          <button onClick={() => navigate("/form-movimentacao")}>
+            <BsArrowLeft /> Voltar
+          </button>
+          <h3>Cadastro de Cartões</h3>
+        </div>
+
+        <div className="linha-1">
+          <input
+            type="text"
+            placeholder="Nome do cartão"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
+
+          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+            <option value="Crédito">Crédito</option>
+            <option value="Débito">Débito</option>
+          </select>
+        </div>
+        {tipo === "Crédito" && (
+          <div className="linha-1">
+            <input
+              type="number"
+              placeholder="Limite de crédito"
+              value={limite}
+              onChange={(e) =>
+                setLimite(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
+            />
+            <input
+              type="number"
+              placeholder="Dia de fechamento"
+              value={diaFechamento}
+              onChange={(e) =>
+                setDiaFechamento(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
+              min={1}
+              max={31}
+            />
+            <input
+              type="number"
+              placeholder="Dia de vencimento"
+              value={diaVencimento}
+              onChange={(e) =>
+                setDiaVencimento(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
+              min={1}
+              max={31}
+            />
+          </div>
+        )}
+
+        <button onClick={salvarCartao}>
+          {editandoId ? "Salvar Edição" : <BsPlusCircle />}
+        </button>
+        {editandoId && (
+          <button onClick={resetForm} style={{ marginLeft: "10px" }}>
+            Cancelar
+          </button>
+        )}
+      </div>
+
+      <div id="categoria-container">
+        <h3>Meus Cartões</h3>
+        <ul>
+          {cartoes.map((c) => (
+            <li key={c.id}>
+              {c.nome} - {c.tipo}
+              {c.tipo === "Crédito" && (
+                <span>
+                  {" "} | Limite: R$ {c.limite?.toFixed(2)} | Fechamento:{" "}
+                  {c.diaFechamento} | Vencimento: {c.diaVencimento}
+                </span>
+              )}
+              <button onClick={() => editarCartao(c)}>
+                <BsPencil />
+              </button>
+              <button onClick={() => excluirCartao(c.id)}>
+                <BsTrash />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
 }
 
 export default Cartoes;

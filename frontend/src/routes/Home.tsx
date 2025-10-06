@@ -2,6 +2,8 @@ import { usePeriodo } from '../components/PeriodoContext';
 import type { Transacao } from "../types/transacao";
 import PeriodoSelector from "../components/PeriodoSelector";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import './Home.css'
 
@@ -9,8 +11,96 @@ interface Props {
   transacoes: Transacao[];
 }
 
+interface Cartao {
+  id: number;
+  nome: string;
+  tipo: "credito" | "debito";
+  limite: number;
+  diaFechamento: number;
+  diaVencimento: number;
+}
+
+interface FaturaCartao {
+  cartao: string;
+  totalFaturaAtual: number;
+  limite: number;
+  comprometido: number;
+  disponivel: number;
+}
+
 function Home({ transacoes }: Props) {
   const { mesSelecionado, anoSelecionado } = usePeriodo();
+
+  const [cartoes, setCartoes] = useState<Cartao[]>([]);
+  const [faturasCartoes, setFaturasCartoes] = useState<FaturaCartao[]>([]);
+
+  // Buscar cartões no backend
+  useEffect(() => {
+    axios.get("http://localhost:5000/cartoes")
+      .then((res) => {
+        const dadosNormalizados = res.data.map((c: any) => ({
+          ...c,
+          tipo: c.tipo?.toLowerCase() ?? "debito",
+          limite: c.limite ?? 0,
+        }));
+        setCartoes(dadosNormalizados);
+      })
+      .catch((err) => console.error("Erro ao carregar cartões:", err));
+  }, []);
+
+  // Calcular faturas e limites
+  useEffect(() => {
+    if (!transacoes.length || !cartoes.length) return;
+
+    const novasFaturas: FaturaCartao[] = cartoes
+      .filter((c) => c.tipo === "credito")
+      .map((cartao) => {
+        // --- Fatura atual ---
+        const fechamento = cartao.diaFechamento;
+        const hoje = new Date();
+
+        let inicioFatura: Date;
+        let fimFatura: Date;
+
+        if (hoje.getDate() > fechamento) {
+          // fatura vigente: após fechamento até próximo fechamento
+          inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento + 1);
+          fimFatura = new Date(hoje.getFullYear(), hoje.getMonth() + 1, fechamento);
+        } else {
+          // fatura anterior ainda em aberto
+          inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth() - 1, fechamento + 1);
+          fimFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento);
+        }
+
+        // Transações desse cartão
+        const transacoesCartao = transacoes.filter(
+          (t) => t.formaPagamento === "credito" && t.cartaoId === cartao.id
+        );
+
+        // Valor dentro da fatura atual
+        const totalFaturaAtual = transacoesCartao
+          .filter((t) => {
+            const data = new Date(t.data);
+            return data >= inicioFatura && data <= fimFatura;
+          })
+          .reduce((acc, t) => acc + t.valor, 0);
+
+        // Comprometimento do limite (todas as compras não pagas até agora e futuras)
+        const comprometido = transacoesCartao.reduce((acc, t) => acc + t.valor, 0);
+
+        const disponivel = cartao.limite - comprometido;
+
+        return {
+          cartao: cartao.nome,
+          totalFaturaAtual,
+          limite: cartao.limite,
+          comprometido,
+          disponivel,
+        };
+      });
+
+    setFaturasCartoes(novasFaturas);
+  }, [transacoes, cartoes]);
 
   const transacoesFiltradas = transacoes.filter((t) => {
     const data = new Date(t.data);
@@ -66,29 +156,48 @@ function Home({ transacoes }: Props) {
   return (
     <>
       <PeriodoSelector />
-        <div className="cards-container">
-          <div className="card entrada">
-            <p>Entradas: R$ {totalEntradas.toFixed(2)}</p>
-          </div>
-
-          <div className="card saida">
-            <p>Saídas: R$ {totalSaidas.toFixed(2)}</p>
-          </div>
-
-          <div className="card saldo">
-            <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
-          </div>
-
-          <div className="card transacoes">
-            <h4>Total de Transações</h4>
-            <p>{numeroTransacoes}</p>
-          </div>
-
-          <div className="card maior-gasto">
-            <h4>Maior Gasto</h4>
-            <p>R$ {maiorGasto.toFixed(2)}</p>
-          </div>
+      <div className="cards-container">
+        <div className="card entrada">
+          <p>Entradas: R$ {totalEntradas.toFixed(2)}</p>
         </div>
+
+        <div className="card saida">
+          <p>Saídas: R$ {totalSaidas.toFixed(2)}</p>
+        </div>
+
+        <div className="card saldo">
+          <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
+        </div>
+
+        <div className="card transacoes">
+          <h4>Total de Transações</h4>
+          <p>{numeroTransacoes}</p>
+        </div>
+
+        <div className="card maior-gasto">
+          <h4>Maior Gasto</h4>
+          <p>R$ {maiorGasto.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <div className="cards-container">
+        <div className="card faturas">
+          <h4>Cartões de Crédito</h4>
+          {faturasCartoes.length === 0 && <p>Nenhum cartão de crédito cadastrado.</p>}
+          <ul>
+            {faturasCartoes.map((f, i) => (
+              <li key={i}>
+                <strong>{f.cartao}</strong><br />
+                Fatura atual: R$ {f.totalFaturaAtual.toFixed(2)}<br />
+                Limite: R$ {f.limite.toFixed(2)}<br />
+                Comprometido: R$ {f.comprometido.toFixed(2)}<br />
+                Disponível: R$ {f.disponivel.toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
       <div id='relatorios-container'>
         <div className="graficos-relatorios">
           <div className="grafico-card">

@@ -39,25 +39,17 @@ db.run(`
 `);
 
 db.run(`
-    CREATE TABLE IF NOT EXISTS cartoes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        tipo TEXT CHECK(tipo IN ('Crédito', 'Débito')) NOT NULL,
-        limite REAL
-    )
+  CREATE TABLE IF NOT EXISTS cartoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
+    tipo TEXT,
+    limite REAL,
+    diaFechamento INTEGER,
+    diaVencimento INTEGER
+  )
 `);
 
-db.run(`
-    ALTER TABLE transacoes ADD COLUMN cartaoId INTEGER REFERENCES cartoes(id)
-`, (err) => {
-    if (err && !err.message.includes("duplicate column name")) {
-        console.error("Erro ao adicionar coluna cartaoId:", err.message);
-    }
-});
-
-
 // Rotas
-
 // Listar todas as transações
 app.get("/transacoes", (req, res) => {
     db.all("SELECT * FROM transacoes", [], (err, rows) => {
@@ -118,18 +110,18 @@ app.post("/categorias", (req, res) => {
 
 // Adicionar cartão
 app.post("/cartoes", (req, res) => {
-    const { nome, tipo, limite } = req.body;
+    const { nome, tipo, limite, diaFechamento, diaVencimento } = req.body;
 
     if (!nome || !tipo) {
         return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
     }
 
     db.run(
-        "INSERT INTO cartoes (nome, tipo, limite) VALUES (?, ?, ?)",
-        [nome, tipo, limite || null],
+        "INSERT INTO cartoes (nome, tipo, limite, diaFechamento, diaVencimento) VALUES (?, ?, ?, ?, ?)",
+        [nome, tipo, limite, diaFechamento, diaVencimento],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ id: this.lastID, nome, tipo, limite });
+            res.status(201).json({ id: this.lastID, nome, tipo, limite, diaFechamento, diaVencimento });
         }
     );
 });
@@ -151,18 +143,17 @@ app.put("/transacoes/:id", (req, res) => {
     );
 });
 
-
 // Atualizar cartão
 app.put("/cartoes/:id", (req, res) => {
     const { id } = req.params;
-    const { nome, tipo, limite } = req.body;
+    const { nome, tipo, limite, diaFechamento, diaVencimento } = req.body;
 
     db.run(
-        "UPDATE cartoes SET nome = ?, tipo = ?, limite = ? WHERE id = ?",
-        [nome, tipo, limite || null, id],
+        "UPDATE cartoes SET nome = ?, tipo = ?, limite = ?, diaFechamento = ?, diaVencimento = ? WHERE id = ?",
+        [nome, tipo, limite, diaFechamento, diaVencimento, id],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: Number(id), nome, tipo, limite });
+            res.json({ id: Number(id), nome, tipo, limite, diaFechamento, diaVencimento });
         }
     );
 });

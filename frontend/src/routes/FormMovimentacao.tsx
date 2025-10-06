@@ -25,9 +25,9 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     const [valor, setValor] = useState("");
     const [categoria, setCategoria] = useState("");
     const [categorias, setCategorias] = useState<{ id: number; nome: string; tipo: string }[]>([]);
-    
+
     const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>("dinheiro");
-    
+
     const [modoLancamento, setModoLancamento] = useState<"A Vista" | "Parcelado" | "Recorrente">("A Vista");
     const [parcelas, setParcelas] = useState(1);
     const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
@@ -88,6 +88,14 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         if (!data || !descricao || !valor || !categoria) return;
         const valorNumber = Number(valor);
 
+        let cartaoId: number | null = null;
+        let formaPagamentoFinal: FormaPagamento = formaPagamento;
+
+        if (formaPagamento.startsWith("cartao-")) {
+            cartaoId = Number(formaPagamento.split("-")[1]);
+            formaPagamentoFinal = "credito";
+        }
+
         try {
             if (editandoId) {
                 // Edição
@@ -98,9 +106,10 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                     descricao,
                     valor: valorNumber,
                     categoria,
-                    formaPagamento,
+                    formaPagamento: formaPagamentoFinal,
                     parcela: modoLancamento === "Parcelado" ? `${parcelas}x` : undefined,
-                    recorrente: modoLancamento === "Recorrente" ? true : undefined
+                    recorrente: modoLancamento === "Recorrente" ? true : undefined,
+                    cartaoId,
                 };
                 // Aguardar a função do App que faz PUT + atualiza estado
                 await editarTransacao(transacaoAtualizada);
@@ -117,8 +126,9 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber / parcelas,
                             categoria,
-                            formaPagamento,
-                            parcela: `${i}/${parcelas}`
+                            formaPagamento: formaPagamentoFinal,
+                            parcela: `${i}/${parcelas}`,
+                            cartaoId,
                         });
                     }
                 } else if (modoLancamento === "Recorrente" && mesesRecorrencia > 1) {
@@ -132,8 +142,9 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber,
                             categoria,
-                            formaPagamento,
-                            recorrente: true
+                            formaPagamento: formaPagamentoFinal,
+                            recorrente: true,
+                            cartaoId,
                         });
                     }
                 } else {
@@ -144,7 +155,8 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                         descricao,
                         valor: valorNumber,
                         categoria,
-                        formaPagamento
+                        formaPagamento: formaPagamentoFinal,
+                        cartaoId,
                     });
                 }
             }

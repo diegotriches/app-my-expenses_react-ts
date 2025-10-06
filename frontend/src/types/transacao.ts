@@ -8,5 +8,5 @@ export interface Transacao {
     parcela?: string;
     recorrente?: boolean;
     formaPagamento: "credito" | "debito" | "dinheiro" | "pix";
-    idCartao?: number;
+    cartaoId?: number | null;
 }

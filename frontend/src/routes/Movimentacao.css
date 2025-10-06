@@ -75,7 +75,6 @@
 
 .card-mov.ativo .acoes {
   display: flex;
-  /* só aparece quando ativo */
   justify-content: flex-end;
 }
 
@@ -90,7 +89,6 @@
 
 .card-mov .acoes button:hover {
   color: #007bff;
-  /* destaque no hover */
 }
 
 /* Header do card */
