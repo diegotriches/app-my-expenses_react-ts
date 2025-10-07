@@ -7,6 +7,6 @@ export interface Transacao {
     categoria: string;
     parcela?: string;
     recorrente?: boolean;
-    formaPagamento: "credito" | "debito" | "dinheiro" | "pix";
+    formaPagamento: "dinheiro" | "pix" | "cartao";
     cartaoId?: number | null;
 }

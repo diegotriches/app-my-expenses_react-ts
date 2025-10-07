@@ -7,12 +7,12 @@ import { BsFloppy2Fill, BsArrowLeft, BsThreeDotsVertical } from "react-icons/bs"
 
 import './FormMovimentacao.css'
 
-type FormaPagamento = "credito" | "debito" | "dinheiro" | "pix";
+type FormaPagamento = "dinheiro" | "pix" | "cartao";
 
 interface Props {
     transacoes: Transacao[];
     adicionarTransacao: (nova: Transacao) => Promise<void>;
-    editarTransacao: (atualizada: Transacao) => Promise<void>; // assegure Promise aqui
+    editarTransacao: (atualizada: Transacao) => Promise<void>;
 }
 
 function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: Props) {
@@ -25,16 +25,14 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     const [valor, setValor] = useState("");
     const [categoria, setCategoria] = useState("");
     const [categorias, setCategorias] = useState<{ id: number; nome: string; tipo: string }[]>([]);
-
     const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>("dinheiro");
+    const [cartaoId, setCartaoId] = useState<number | null>(null);
 
     const [modoLancamento, setModoLancamento] = useState<"A Vista" | "Parcelado" | "Recorrente">("A Vista");
     const [parcelas, setParcelas] = useState(1);
     const [mesesRecorrencia, setMesesRecorrencia] = useState(1);
     const [editandoId, setEditandoId] = useState<number | null>(null);
     const [cartoes, setCartoes] = useState<{ id: number; nome: string; tipo: string }[]>([]);
-
-
     const [menuAberto, setMenuAberto] = useState(false);
 
     // Carregar categorias do backend
@@ -53,7 +51,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
     }, []);
 
 
-    // Preencher campos se estiver editando (leva em conta o estado das categorias também)
+    // Preencher campos se estiver editando
     useEffect(() => {
         if (!id) return;
         const transacao = transacoes.find((t) => t.id === Number(id));
@@ -66,6 +64,8 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         setValor(transacao.valor.toString());
         setCategoria(transacao.categoria ?? "");
         setFormaPagamento(transacao.formaPagamento);
+        setCartaoId(transacao.cartaoId ?? null);
+
         if (transacao.parcela) setModoLancamento("Parcelado");
         else if (transacao.recorrente) setModoLancamento("Recorrente");
         else setModoLancamento("A Vista");
@@ -88,14 +88,6 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
         if (!data || !descricao || !valor || !categoria) return;
         const valorNumber = Number(valor);
 
-        let cartaoId: number | null = null;
-        let formaPagamentoFinal: FormaPagamento = formaPagamento;
-
-        if (formaPagamento.startsWith("cartao-")) {
-            cartaoId = Number(formaPagamento.split("-")[1]);
-            formaPagamentoFinal = "credito";
-        }
-
         try {
             if (editandoId) {
                 // Edição
@@ -106,7 +98,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                     descricao,
                     valor: valorNumber,
                     categoria,
-                    formaPagamento: formaPagamentoFinal,
+                    formaPagamento,
                     parcela: modoLancamento === "Parcelado" ? `${parcelas}x` : undefined,
                     recorrente: modoLancamento === "Recorrente" ? true : undefined,
                     cartaoId,
@@ -126,7 +118,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber / parcelas,
                             categoria,
-                            formaPagamento: formaPagamentoFinal,
+                            formaPagamento,
                             parcela: `${i}/${parcelas}`,
                             cartaoId,
                         });
@@ -142,7 +134,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                             descricao,
                             valor: valorNumber,
                             categoria,
-                            formaPagamento: formaPagamentoFinal,
+                            formaPagamento,
                             recorrente: true,
                             cartaoId,
                         });
@@ -155,7 +147,7 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                         descricao,
                         valor: valorNumber,
                         categoria,
-                        formaPagamento: formaPagamentoFinal,
+                        formaPagamento,
                         cartaoId,
                     });
                 }
@@ -233,20 +225,31 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
                     <select
                         id="formaPagamento"
                         value={formaPagamento}
-                        onChange={(e) => setFormaPagamento(e.target.value as FormaPagamento)}
+                        onChange={(e) => {
+                            const value = e.target.value as FormaPagamento;
+                            setFormaPagamento(value);
+                            if (value !== "cartao") setCartaoId(null);
+                        }}
                     >
                         <option value="dinheiro">Dinheiro</option>
                         <option value="pix">Pix</option>
+                        <option value="cartao">Cartão</option>
+                    </select>
 
-                        <optgroup label="Cartões">
+                    {formaPagamento === "cartao" && (
+                        <select
+                            id="cartaoId"
+                            value={cartaoId ?? ""}
+                            onChange={(e) => setCartaoId(Number(e.target.value))}
+                        >
+                            <option value="">Selecione o cartão</option>
                             {cartoes.map(c => (
-                                <option key={c.id} value={`cartao-${c.id}`}>
+                                <option key={c.id} value={c.id}>
                                     {c.nome} ({c.tipo})
                                 </option>
                             ))}
-                        </optgroup>
-                    </select>
-
+                        </select>
+                    )}
 
                     <select value={modoLancamento} onChange={(e) => setModoLancamento(e.target.value as "A Vista" | "Parcelado" | "Recorrente")}>
                         <option value="A Vista">A Vista</option>

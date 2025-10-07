@@ -12,14 +12,6 @@
   font-weight: bold;
 }
 
-.card.entrada {
-  background-color: #00C49F;
-}
-
-.card.saida {
-  background-color: #FF4C4C;
-}
-
 .card.saldo {
   background-color: #4C9BFF;
 }
@@ -31,6 +23,88 @@
 
 .card.maior-gasto {
   background-color: #FF6F61;
+}
+
+/* ========================
+   Estilo da seção de Cartões
+======================== */
+
+.faturas-cartoes {
+  width: 100%;
+  margin-top: 30px;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.faturas-cartoes h4 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.sem-cartoes {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+.lista-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card-cartao {
+  background: linear-gradient(145deg, #f9fafb, #f1f1f1);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-cartao:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.header-cartao h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.info-cartao {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.barra-limite {
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progresso {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.percentual-uso {
+  margin-top: 6px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #555;
 }
 
 /* Container principal */
@@ -147,6 +221,20 @@
   .filtros-relatorios select,
   .filtros-relatorios input {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .card-cartao {
+    padding: 14px;
+  }
+
+  .header-cartao h3 {
+    font-size: 1.1rem;
+  }
+
+  .info-cartao p {
+    font-size: 0.9rem;
   }
 }
 

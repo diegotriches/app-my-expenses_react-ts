@@ -1,9 +1,10 @@
 import { usePeriodo } from '../components/PeriodoContext';
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 import type { Transacao } from "../types/transacao";
 import PeriodoSelector from "../components/PeriodoSelector";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-import { useEffect, useState } from "react";
-import axios from "axios";
 
 import './Home.css'
 
@@ -52,52 +53,50 @@ function Home({ transacoes }: Props) {
   useEffect(() => {
     if (!transacoes.length || !cartoes.length) return;
 
-    const novasFaturas: FaturaCartao[] = cartoes
-      .filter((c) => c.tipo === "credito")
-      .map((cartao) => {
-        // --- Fatura atual ---
-        const fechamento = cartao.diaFechamento;
-        const hoje = new Date();
+    const novasFaturas: FaturaCartao[] = cartoes.map((cartao) => {
+      // --- Fatura atual ---
+      const fechamento = cartao.diaFechamento;
+      const hoje = new Date();
 
-        let inicioFatura: Date;
-        let fimFatura: Date;
+      let inicioFatura: Date;
+      let fimFatura: Date;
 
-        if (hoje.getDate() > fechamento) {
-          // fatura vigente: após fechamento até próximo fechamento
-          inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento + 1);
-          fimFatura = new Date(hoje.getFullYear(), hoje.getMonth() + 1, fechamento);
-        } else {
-          // fatura anterior ainda em aberto
-          inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth() - 1, fechamento + 1);
-          fimFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento);
-        }
+      if (hoje.getDate() > fechamento) {
+        // fatura vigente: após fechamento até próximo fechamento
+        inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento + 1);
+        fimFatura = new Date(hoje.getFullYear(), hoje.getMonth() + 1, fechamento);
+      } else {
+        // fatura anterior ainda em aberto
+        inicioFatura = new Date(hoje.getFullYear(), hoje.getMonth() - 1, fechamento + 1);
+        fimFatura = new Date(hoje.getFullYear(), hoje.getMonth(), fechamento);
+      }
 
-        // Transações desse cartão
-        const transacoesCartao = transacoes.filter(
-          (t) => t.formaPagamento === "credito" && t.cartaoId === cartao.id
-        );
+      // Transações desse cartão
+      const transacoesCartao = transacoes.filter(
+        (t) => t.formaPagamento === "cartao" && t.cartaoId === cartao.id
+      );
 
-        // Valor dentro da fatura atual
-        const totalFaturaAtual = transacoesCartao
-          .filter((t) => {
-            const data = new Date(t.data);
-            return data >= inicioFatura && data <= fimFatura;
-          })
-          .reduce((acc, t) => acc + t.valor, 0);
+      // Valor dentro da fatura atual
+      const totalFaturaAtual = transacoesCartao
+        .filter((t) => {
+          const data = new Date(t.data);
+          return data >= inicioFatura && data <= fimFatura;
+        })
+        .reduce((acc, t) => acc + t.valor, 0);
 
-        // Comprometimento do limite (todas as compras não pagas até agora e futuras)
-        const comprometido = transacoesCartao.reduce((acc, t) => acc + t.valor, 0);
+      // Comprometimento do limite (todas as compras não pagas até agora e futuras)
+      const comprometido = transacoesCartao.reduce((acc, t) => acc + t.valor, 0);
 
-        const disponivel = cartao.limite - comprometido;
+      const disponivel = cartao.limite - comprometido;
 
-        return {
-          cartao: cartao.nome,
-          totalFaturaAtual,
-          limite: cartao.limite,
-          comprometido,
-          disponivel,
-        };
-      });
+      return {
+        cartao: cartao.nome,
+        totalFaturaAtual,
+        limite: cartao.limite,
+        comprometido,
+        disponivel,
+      };
+    });
 
     setFaturasCartoes(novasFaturas);
   }, [transacoes, cartoes]);
@@ -119,36 +118,34 @@ function Home({ transacoes }: Props) {
     .reduce((acc, t) => acc + t.valor, 0);
 
   const saldo = totalEntradas - totalSaidas;
-
   const numeroTransacoes = transacoesFiltradas.length;
-
   const maiorGasto = transacoesFiltradas
     .filter((t) => t.tipo === "Saída")
     .reduce((max, t) => (t.valor > max ? t.valor : max), 0);
 
-  const dataGrafico = [
+  // Gráfico de Barras → Entradas x Saídas
+  const dataBarChart = [
     { name: "Entradas", value: totalEntradas },
     { name: "Saídas", value: totalSaidas },
   ];
 
-  const COLORS = ["#00C49F", "#FF4C4C"];
+  const COLORS_BARRAS = ["#00C49F", "#FF4C4C"];
 
+  // Gráfico de Pizza → Gastos por categoria
   const totalPorCategoria: Record<string, number> = {};
   transacoesFiltradas
     .filter((t) => t.tipo === "Saída")
     .forEach((t) => {
-      if (!totalPorCategoria[t.categoria]) {
-        totalPorCategoria[t.categoria] = 0;
-      }
-      totalPorCategoria[t.categoria] += t.valor;
+      totalPorCategoria[t.categoria] =
+        (totalPorCategoria[t.categoria] || 0) + t.valor;
     });
 
-  const dataBarChart = Object.entries(totalPorCategoria).map(([categoria, valor]) => ({
-    categoria,
-    valor,
+  const dataPieChart = Object.entries(totalPorCategoria).map(([categoria, valor]) => ({
+    name: categoria,
+    value: valor,
   }));
 
-  const COLORS_CATEGORIAS = [
+  const COLORS_PIE = [
     "#FF6384", "#36A2EB", "#FFCE56", "#8A2BE2", "#FF7F50",
     "#00CED1", "#3CB371", "#FFD700", "#FF69B4", "#87CEEB"
   ];
@@ -157,14 +154,6 @@ function Home({ transacoes }: Props) {
     <>
       <PeriodoSelector />
       <div className="cards-container">
-        <div className="card entrada">
-          <p>Entradas: R$ {totalEntradas.toFixed(2)}</p>
-        </div>
-
-        <div className="card saida">
-          <p>Saídas: R$ {totalSaidas.toFixed(2)}</p>
-        </div>
-
         <div className="card saldo">
           <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
         </div>
@@ -180,31 +169,75 @@ function Home({ transacoes }: Props) {
         </div>
       </div>
 
-      <div className="cards-container">
-        <div className="card faturas">
-          <h4>Cartões de Crédito</h4>
-          {faturasCartoes.length === 0 && <p>Nenhum cartão de crédito cadastrado.</p>}
-          <ul>
-            {faturasCartoes.map((f, i) => (
-              <li key={i}>
-                <strong>{f.cartao}</strong><br />
-                Fatura atual: R$ {f.totalFaturaAtual.toFixed(2)}<br />
-                Limite: R$ {f.limite.toFixed(2)}<br />
-                Comprometido: R$ {f.comprometido.toFixed(2)}<br />
-                Disponível: R$ {f.disponivel.toFixed(2)}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="faturas-cartoes">
+        <h4>Cartões</h4>
+        {faturasCartoes.length === 0 ? (
+          <p className="sem-cartoes">Nenhum cartão cadastrado.</p>
+        ) : (
+          <div className="lista-cartoes">
+            {faturasCartoes.map((f, i) => {
+              const percentualUsado = f.limite > 0 ? (f.comprometido / f.limite) * 100 : 0;
+
+              let corBarra = "#4CAF50"; // verde
+              if (percentualUsado > 80) corBarra = "#FF4C4C"; // vermelho
+              else if (percentualUsado > 50) corBarra = "#FFC107"; // amarelo
+
+              return (
+                <div key={i} className="card-cartao">
+                  <div className="header-cartao">
+                    <h3>{f.cartao}</h3>
+                  </div>
+
+                  <div className="info-cartao">
+                    <p><strong>Fatura atual:</strong> R$ {f.totalFaturaAtual.toFixed(2)}</p>
+                    <p><strong>Limite total:</strong> R$ {f.limite.toFixed(2)}</p>
+                    <p><strong>Comprometido:</strong> R$ {f.comprometido.toFixed(2)}</p>
+                    <p><strong>Disponível:</strong> R$ {f.disponivel.toFixed(2)}</p>
+                  </div>
+
+                  <div className="barra-limite">
+                    <div
+                      className="progresso"
+                      style={{ width: `${percentualUsado}%`, backgroundColor: corBarra }}
+                    ></div>
+                  </div>
+
+                  <p className="percentual-uso">
+                    {percentualUsado.toFixed(0)}% do limite utilizado
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div id='relatorios-container'>
         <div className="graficos-relatorios">
           <div className="grafico-card">
+            <h4>Entradas x Saídas</h4>
             <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dataBarChart}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
+                <Legend />
+                <Bar dataKey="value" isAnimationActive>
+                  {dataBarChart.map((entry, index) => (
+                    <Cell key={`bar-${index}`} fill={COLORS_BARRAS[index % COLORS_BARRAS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grafico-card">
+            <h4>Gastos por Categoria</h4>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie
-                  data={dataGrafico}
+                  data={dataPieChart}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -213,32 +246,13 @@ function Home({ transacoes }: Props) {
                   dataKey="value"
                   label={({ name, value }) => `${name}: R$ ${(value ?? 0).toFixed(2)}`}
                 >
-                  {dataGrafico.map((entry, index) => (
-                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                  {dataPieChart.map((entry, index) => (
+                    <Cell key={`slice-${index}`} fill={COLORS_PIE[index % COLORS_PIE.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
                 <Legend />
               </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grafico-card">
-            <h4>Gastos por Categoria</h4>
-
-            <ResponsiveContainer width='100%' height={350}>
-              <BarChart data={dataBarChart} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="categoria" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
-                <Legend />
-                <Bar dataKey="valor" isAnimationActive={true}>
-                  {dataBarChart.map((entry, index) => (
-                    <Cell key={entry.categoria} fill={COLORS_CATEGORIAS[index % COLORS_CATEGORIAS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>

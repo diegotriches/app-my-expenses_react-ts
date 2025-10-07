@@ -49,7 +49,8 @@ db.run(`
   )
 `);
 
-// Rotas
+// ROTAS
+
 // Listar todas as transações
 app.get("/transacoes", (req, res) => {
     db.all("SELECT * FROM transacoes", [], (err, rows) => {
@@ -76,19 +77,62 @@ app.get("/cartoes", (req, res) => {
 
 // Adicionar transação
 app.post("/transacoes", (req, res) => {
-    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
+    let { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
 
-    db.run(
-        `INSERT INTO transacoes 
-        (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId || null],
-        function (err) {
+    // Normalizar formaPagamento
+    const formasPermitidas = ["dinheiro", "pix", "cartao"];
+    if (!formasPermitidas.includes(formaPagamento)) {
+        formaPagamento = "dinheiro";
+    }
+
+    // Se não for "cartao", zera cartaoId
+    if (formaPagamento !== "cartao") {
+        cartaoId = null;
+    }
+
+    // Se for "cartao", precisa verificar se existe o cartão
+    if (formaPagamento === "cartao" && !cartaoId) {
+        return res.status(400).json({ error: "É necessário informar o cartaoId para formaPagamento = 'cartao'" });
+    }
+
+    if (formaPagamento === "cartao") {
+        db.get("SELECT id FROM cartoes WHERE id = ?", [cartaoId], (err, cartao) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId });
-        }
-    );
+            if (!cartao) {
+                return res.status(400).json({ error: "Cartão informado não existe." });
+            }
+
+            inserirTransacao();
+        });
+    } else {
+        inserirTransacao();
+    }
+
+    function inserirTransacao() {
+        db.run(
+            `INSERT INTO transacoes 
+            (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId],
+            function (err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.status(201).json({
+                    id: this.lastID,
+                    data,
+                    tipo,
+                    descricao,
+                    valor,
+                    categoria,
+                    formaPagamento,
+                    parcela,
+                    recorrente,
+                    cartaoId
+                });
+            }
+        );
+    }
 });
+
 
 // Adicionar categoria
 app.post("/categorias", (req, res) => {
@@ -129,16 +173,78 @@ app.post("/cartoes", (req, res) => {
 // Atualizar transação
 app.put("/transacoes/:id", (req, res) => {
     const { id } = req.params;
-    const { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
+    let { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
+
+    const formasPermitidas = ["dinheiro", "pix", "cartao"];
+    if (!formasPermitidas.includes(formaPagamento)) {
+        formaPagamento = "dinheiro";
+    }
+
+    if (formaPagamento !== "cartao") {
+        cartaoId = null;
+    }
+
+    function atualizar() {
+        db.run(
+            `UPDATE transacoes 
+            SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ?, cartaoId = ?
+            WHERE id = ?`,
+            [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId, id],
+            function (err) {
+                if (err) return res.status(500).json({ error: err.message });
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: "Transação não encontrada" });
+                }
+                res.json({
+                    id: Number(id),
+                    data,
+                    tipo,
+                    descricao,
+                    valor,
+                    categoria,
+                    formaPagamento,
+                    parcela,
+                    recorrente,
+                    cartaoId
+                });
+            }
+        );
+    }
+
+    if (formaPagamento === "cartao" && cartaoId) {
+        db.get("SELECT id FROM cartoes WHERE id = ?", [cartaoId], (err, cartao) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!cartao) return res.status(400).json({ error: "Cartão informado não existe." });
+            atualizar();
+        });
+    } else {
+        atualizar();
+    }
+});
+
+
+// Atualizar categoria
+app.put("/categorias/:id", (req, res) => {
+    const { id } = req.params;
+    const { nome, tipo } = req.body;
+
+    if (!nome || !tipo) {
+        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
+    }
 
     db.run(
-        `UPDATE transacoes 
-        SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ?, cartaoId = ? 
-        WHERE id = ?`,
-        [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId || null, id],
+        "UPDATE categorias SET nome = ?, tipo = ? WHERE id = ?",
+        [nome, tipo, id],
         function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: Number(id), data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId });
+            if (err) {
+                console.error("Erro ao atualizar categoria:", err.message);
+                return res.status(500).json({ error: err.message });
+            }
+            // Caso nenhuma linha tenha sido alterada (id não existe)
+            if (this.changes === 0) {
+                return res.status(404).json({ error: "Categoria não encontrada" });
+            }
+            res.json({ id: Number(id), nome, tipo });
         }
     );
 });
@@ -164,6 +270,24 @@ app.delete("/transacoes/:id", (req, res) => {
     db.run("DELETE FROM transacoes WHERE id = ?", id, function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ deleted: this.changes });
+    });
+});
+
+// Excluir categoria
+app.delete("/categorias/:id", (req, res) => {
+    const { id } = req.params;
+
+    db.run("DELETE FROM categorias WHERE id = ?", id, function (err) {
+        if (err) {
+            console.error("Erro ao excluir categoria:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ error: "Categoria não encontrada" });
+        }
+
+        res.json({ sucesso: true, id: Number(id) });
     });
 });
 

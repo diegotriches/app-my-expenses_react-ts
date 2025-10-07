@@ -71,18 +71,21 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
         )
     );
 
-    const getNomeFormaPagamento = (formaPagamento: string) => {
-        if (formaPagamento === "dinheiro") return <BsCash />;
-        if (formaPagamento === "pix") return <BsFillXDiamondFill />;
+    const getNomeFormaPagamento = (t: Transacao) => {
+        // Se for dinheiro ou pix, exibe ícone + nome
+        if (t.formaPagamento === "dinheiro") return <><BsCash /> Dinheiro</>;
+        if (t.formaPagamento === "pix") return <><BsFillXDiamondFill /> Pix</>;
 
-        if (formaPagamento.startsWith("cartao-")) {
-            const id = Number(formaPagamento.split("-")[1]);
-            const cartao = cartoes.find(c => c.id === id);
-            return cartao ? `${cartao.nome} (${cartao.tipo})` : "Cartão";
+        // Se for um cartão (verifica se tem cartaoId associado)
+        if (t.formaPagamento === "cartao" && t.cartaoId) {
+            const cartao = cartoes.find(c => c.id === t.cartaoId);
+            return cartao ? <><BsCreditCard2Back /> {cartao.nome} ({cartao.tipo})</> : "Cartão";
         }
 
-        return formaPagamento;
+        // Caso não encontre correspondência
+        return t.formaPagamento;
     };
+
 
     useEffect(() => {
         setFiltroCategoria("");
@@ -182,7 +185,7 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                             <div className="card-body">
                                 <span className="data">{new Date(t.data).toLocaleDateString("pt-BR")}</span>
                                 <p className="descricao">{t.descricao}</p>
-                                <p>{getNomeFormaPagamento(t.formaPagamento)}</p>
+                                <p>{getNomeFormaPagamento(t)}</p>
                                 <p className="categoria">{t.categoria}</p>
 
                                 {t.parcela && <span className="parcela">Parcela {t.parcela}</span>}

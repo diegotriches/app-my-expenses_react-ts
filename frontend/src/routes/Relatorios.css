@@ -1,0 +1,61 @@
+.relatorios-container {
+  padding: 2rem;
+}
+
+.filtro-ano {
+  margin-bottom: 1rem;
+}
+
+.resumo-anual {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card.resumo {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.entradas { background-color: #e3fcef; color: #2e7d32; }
+.saidas { background-color: #fdecea; color: #c62828; }
+.saldo { background-color: #e3f2fd; color: #1565c0; }
+
+.graficos-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.grafico-card {
+  flex: 1;
+  min-width: 400px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.tabela-resumo table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-resumo th, .tabela-resumo td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.tabela-resumo th {
+  background-color: #f2f2f2;
+}
+
+.top-gastos ul {
+  list-style: none;
+  padding-left: 0;
+}
