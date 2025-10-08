@@ -153,69 +153,65 @@ function Home({ transacoes }: Props) {
   return (
     <>
       <PeriodoSelector />
-      <div className="cards-container">
-        <div className="card saldo">
-          <p><strong>Saldo: R$ {saldo.toFixed(2)}</strong></p>
+      <div id="home-page">
+        <div className="faturas-cartoes">
+          <h4>Cartões</h4>
+          {faturasCartoes.length === 0 ? (
+            <p className="sem-cartoes">Nenhum cartão cadastrado.</p>
+          ) : (
+            <div className="lista-cartoes">
+              {faturasCartoes.map((f, i) => {
+                const percentualUsado = f.limite > 0 ? (f.comprometido / f.limite) * 100 : 0;
+
+                let corBarra = "#4CAF50"; // verde
+                if (percentualUsado > 80) corBarra = "#FF4C4C"; // vermelho
+                else if (percentualUsado > 50) corBarra = "#FFC107"; // amarelo
+
+                return (
+                  <div key={i} className="card-cartao">
+                    <div className="header-cartao">
+                      <h3>{f.cartao}</h3>
+                    </div>
+
+                    <div className="info-cartao">
+                      <p><strong>Fatura atual:</strong> R$ {f.totalFaturaAtual.toFixed(2)}</p>
+                      <p><strong>Limite total:</strong> R$ {f.limite.toFixed(2)}</p>
+                      <p><strong>Comprometido:</strong> R$ {f.comprometido.toFixed(2)}</p>
+                      <p><strong>Disponível:</strong> R$ {f.disponivel.toFixed(2)}</p>
+                    </div>
+
+                    <div className="barra-limite">
+                      <div
+                        className="progresso"
+                        style={{ width: `${percentualUsado}%`, backgroundColor: corBarra }}
+                      ></div>
+                    </div>
+
+                    <p className="percentual-uso">
+                      {percentualUsado.toFixed(0)}% do limite utilizado
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        <div className="card transacoes">
-          <h4>Total de Transações</h4>
-          <p>{numeroTransacoes}</p>
-        </div>
-
-        <div className="card maior-gasto">
-          <h4>Maior Gasto</h4>
-          <p>R$ {maiorGasto.toFixed(2)}</p>
-        </div>
-      </div>
-
-      <div className="faturas-cartoes">
-        <h4>Cartões</h4>
-        {faturasCartoes.length === 0 ? (
-          <p className="sem-cartoes">Nenhum cartão cadastrado.</p>
-        ) : (
-          <div className="lista-cartoes">
-            {faturasCartoes.map((f, i) => {
-              const percentualUsado = f.limite > 0 ? (f.comprometido / f.limite) * 100 : 0;
-
-              let corBarra = "#4CAF50"; // verde
-              if (percentualUsado > 80) corBarra = "#FF4C4C"; // vermelho
-              else if (percentualUsado > 50) corBarra = "#FFC107"; // amarelo
-
-              return (
-                <div key={i} className="card-cartao">
-                  <div className="header-cartao">
-                    <h3>{f.cartao}</h3>
-                  </div>
-
-                  <div className="info-cartao">
-                    <p><strong>Fatura atual:</strong> R$ {f.totalFaturaAtual.toFixed(2)}</p>
-                    <p><strong>Limite total:</strong> R$ {f.limite.toFixed(2)}</p>
-                    <p><strong>Comprometido:</strong> R$ {f.comprometido.toFixed(2)}</p>
-                    <p><strong>Disponível:</strong> R$ {f.disponivel.toFixed(2)}</p>
-                  </div>
-
-                  <div className="barra-limite">
-                    <div
-                      className="progresso"
-                      style={{ width: `${percentualUsado}%`, backgroundColor: corBarra }}
-                    ></div>
-                  </div>
-
-                  <p className="percentual-uso">
-                    {percentualUsado.toFixed(0)}% do limite utilizado
-                  </p>
-                </div>
-              );
-            })}
+        <div className="cards-container">
+          <div className="card saldo">
+            <p>Saldo: R$ {saldo.toFixed(2)}</p>
           </div>
-        )}
-      </div>
+          <div className="card transacoes">
+            <p>Total de Transações: {numeroTransacoes}</p>
+          </div>
+          <div className="card maior-gasto">
+            <p>Maior Gasto: R$ {maiorGasto.toFixed(2)}</p>
+          </div>
+        </div>
 
-      <div id='relatorios-container'>
         <div className="graficos-relatorios">
-          <div className="grafico-card">
-            <h4>Entradas x Saídas</h4>
+          <div className="grafico-card-home">
+            <h3>Entradas x Saídas</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={dataBarChart}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -232,8 +228,8 @@ function Home({ transacoes }: Props) {
             </ResponsiveContainer>
           </div>
 
-          <div className="grafico-card">
-            <h4>Gastos por Categoria</h4>
+          <div className="grafico-card-home">
+            <h3>Gastos por Categoria</h3>
             <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie

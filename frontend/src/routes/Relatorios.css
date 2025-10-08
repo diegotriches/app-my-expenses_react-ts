@@ -1,9 +1,30 @@
 .relatorios-container {
-  padding: 2rem;
+  background: #fff;
+  text-align: center;
+  border-radius: 1rem;
+  padding: 0.2rem 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 1rem auto;
 }
 
 .filtro-ano {
   margin-bottom: 1rem;
+  font-size: 17px;
+}
+
+.filtro-ano select {
+  border: 2px solid #ddd;
+  border-radius: 1rem;
+  color: #333;
+  background: transparent;
+  padding: 5px;
+  font-size: 15px;
+}
+
+.filtro-ano select:hover {
+  background: #f0f8ff;
+  border: 2px solid #007bff;
+  transition: all 0.5s ease;
 }
 
 .resumo-anual {
@@ -17,7 +38,6 @@
   padding: 1rem;
   border-radius: 12px;
   text-align: center;
-  font-weight: bold;
 }
 
 .entradas { background-color: #e3fcef; color: #2e7d32; }
@@ -33,11 +53,10 @@
 
 .grafico-card {
   flex: 1;
+  text-align: center;
   min-width: 400px;
   background: #fff;
   border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .tabela-resumo table {
@@ -55,7 +74,34 @@
   background-color: #f2f2f2;
 }
 
+.top-gastos {
+  background-color: #fff;
+  border-radius: 12px;
+  border: 3px solid #ddd;
+  margin-top: 20px;
+}
+
+.top-gastos h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
 .top-gastos ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.top-gastos li {
+  background-color: #eee;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.top-gastos strong {
+  color: #333;
+  font-weight: 600;
 }

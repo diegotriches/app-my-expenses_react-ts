@@ -1,41 +1,13 @@
-.cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 15px;
+#home-page {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 0.2rem 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 1rem auto;
 }
-
-.card {
-  padding: 1px;
-  border-radius: 2rem;
-  color: #fff;
-  text-align: center;
-  font-weight: bold;
-}
-
-.card.saldo {
-  background-color: #4C9BFF;
-}
-
-.card.transacoes {
-  background-color: #FFC107;
-  color: #000;
-}
-
-.card.maior-gasto {
-  background-color: #FF6F61;
-}
-
-/* ========================
-   Estilo da seção de Cartões
-======================== */
 
 .faturas-cartoes {
-  width: 100%;
-  margin-top: 30px;
-  background-color: #fff;
-  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .faturas-cartoes h4 {
@@ -107,107 +79,54 @@
   color: #555;
 }
 
-/* Container principal */
-.relatorios-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.relatorios-container h3 {
-  font-size: 1.5rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
-
-/* Filtros */
-.filtros-relatorios {
+.cards-container {
   display: flex;
-  flex-wrap: wrap;
+  padding: 1rem;
   gap: 1rem;
-  align-items: center;
-  margin-bottom: 2rem;
 }
 
-.filtros-relatorios select,
-.filtros-relatorios input {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.filtros-relatorios select:focus,
-.filtros-relatorios input:focus {
-  border-color: #4a90e2;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-}
-
-/* Lista de categorias */
-.categorias-lista {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: #f9fafc;
+.card {
+  flex: 1;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  font-weight: bold;
 }
 
-.categorias-lista h4 {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  color: #2c3e50;
+.card.saldo {
+  background-color: #e3f2fd;
+  color: #1565c0;
 }
 
-.categorias-lista ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.card.transacoes {
+  background-color: #e3fcef;
+  color: #2e7d32;
 }
 
-.categorias-lista li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #ececec;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.categorias-lista li:last-child {
-  border-bottom: none;
+.card.maior-gasto {
+  background-color: #fdecea;
+  color: #c62828;
 }
 
 /* Área dos gráficos */
 .graficos-relatorios {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1rem;
   margin-top: 2rem;
 }
 
-.grafico-card {
+.grafico-card-home {
   background: #fff;
   border-radius: 14px;
-  padding: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.grafico-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-}
-
-.grafico-card h4 {
+.grafico-card-home h3 {
   text-align: center;
   margin-bottom: 1rem;
-  font-size: 1.1rem;
   color: #2c3e50;
 }
 
-/* === Responsividade === */
+/* Responsividade */
 @media (max-width: 900px) {
   .graficos-relatorios {
     grid-template-columns: 1fr;

@@ -81,7 +81,7 @@ function Relatorios() {
       <h2>Relatório Anual de {anoSelecionado}</h2>
 
       <div className="filtro-ano">
-        <label htmlFor="ano">Ano:</label>
+        <label htmlFor="ano">Ano: </label>
         <select
           id="ano"
           value={anoSelecionado}

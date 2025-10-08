@@ -1,13 +1,15 @@
 .periodo-compact {
   display: flex;
+  width: 15%;
+  margin: 0 3rem 0 auto;
   justify-content: center;
   align-items: center;
+  border-bottom-left-radius: 2rem;
+  border-bottom-right-radius: 2rem;
   gap: 12px;
   padding: 10px 12px;
   background: #f1f1f1;
-  border-radius: 12px;
   font-size: 1.1rem;
-  margin-bottom: 15px;
 }
 
 .periodo-compact .seta {

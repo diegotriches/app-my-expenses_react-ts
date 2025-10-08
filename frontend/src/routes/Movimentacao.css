@@ -38,7 +38,7 @@
 #mov-list h3 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #1565c0;
+  color: #555;
   font-size: 1.6rem;
   font-weight: 700;
 }
@@ -61,9 +61,7 @@
 
 .card-mov.ativo {
   border-color: #007bff;
-  /* azul destaque */
   background: #f0f8ff;
-  /* fundo levemente azul */
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
