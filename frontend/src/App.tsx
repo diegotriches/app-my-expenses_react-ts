@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Home from "./routes/Home";
 import Movimentacao from "./routes/Movimentacao";
 import Relatorios from "./routes/Relatorios";
+import Perfil from "./routes/Perfil";
 import Categorias from "./routes/Categorias";
 import Cartoes from "./routes/Cartoes";
 import FormMovimentacao from "./routes/FormMovimentacao";
@@ -86,6 +87,7 @@ function App() {
                 editarTransacao={editarTransacao}
               />}
             />
+            <Route path="/perfil" element={<Perfil />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/cartoes" element={<Cartoes />} />
           </Routes>

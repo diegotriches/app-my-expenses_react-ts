@@ -1,12 +1,30 @@
-const express = require("express");
-const cors = require("cors");
-const sqlite3 = require("sqlite3").verbose();
+import express from "express";
+import cors from "cors";
+import sqlite3 from "sqlite3";
+import path from "path";
+import { fileURLToPath } from "url";
+
+import transacoesRoutes from "./routes/transacoes.js";
+import cartoesRoutes from "./routes/cartoes.js";
+import categoriasRoutes from "./routes/categorias.js";
+import usuariosRoutes from "./routes/usuarios.js";
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
+
+// Necessário para __dirname no ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Servir imagens da pasta uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Usando as rotas separadas
+app.use("/transacoes", transacoesRoutes);
+app.use("/cartoes", cartoesRoutes);
+app.use("/categorias", categoriasRoutes);
+app.use("/usuarios", usuariosRoutes);
 
 // Banco de dados SQLite
 const db = new sqlite3.Database("./finance.db", (err) => {
@@ -49,258 +67,16 @@ db.run(`
   )
 `);
 
-// ROTAS
-
-// Listar todas as transações
-app.get("/transacoes", (req, res) => {
-    db.all("SELECT * FROM transacoes", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Listar todas as categorias
-app.get("/categorias", (req, res) => {
-    db.all("SELECT * FROM categorias", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Listar todos os cartões
-app.get("/cartoes", (req, res) => {
-    db.all("SELECT * FROM cartoes", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Adicionar transação
-app.post("/transacoes", (req, res) => {
-    let { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
-
-    // Normalizar formaPagamento
-    const formasPermitidas = ["dinheiro", "pix", "cartao"];
-    if (!formasPermitidas.includes(formaPagamento)) {
-        formaPagamento = "dinheiro";
-    }
-
-    // Se não for "cartao", zera cartaoId
-    if (formaPagamento !== "cartao") {
-        cartaoId = null;
-    }
-
-    // Se for "cartao", precisa verificar se existe o cartão
-    if (formaPagamento === "cartao" && !cartaoId) {
-        return res.status(400).json({ error: "É necessário informar o cartaoId para formaPagamento = 'cartao'" });
-    }
-
-    if (formaPagamento === "cartao") {
-        db.get("SELECT id FROM cartoes WHERE id = ?", [cartaoId], (err, cartao) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (!cartao) {
-                return res.status(400).json({ error: "Cartão informado não existe." });
-            }
-
-            inserirTransacao();
-        });
-    } else {
-        inserirTransacao();
-    }
-
-    function inserirTransacao() {
-        db.run(
-            `INSERT INTO transacoes 
-            (data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId],
-            function (err) {
-                if (err) return res.status(500).json({ error: err.message });
-                res.status(201).json({
-                    id: this.lastID,
-                    data,
-                    tipo,
-                    descricao,
-                    valor,
-                    categoria,
-                    formaPagamento,
-                    parcela,
-                    recorrente,
-                    cartaoId
-                });
-            }
-        );
-    }
-});
-
-
-// Adicionar categoria
-app.post("/categorias", (req, res) => {
-    const { nome, tipo } = req.body;
-
-    if (!nome || !tipo) {
-        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
-    }
-
-    db.run(
-        "INSERT INTO categorias (nome, tipo) VALUES (?, ?)",
-        [nome, tipo],
-        function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ id: this.lastID, nome, tipo });
-        }
-    );
-});
-
-// Adicionar cartão
-app.post("/cartoes", (req, res) => {
-    const { nome, tipo, limite, diaFechamento, diaVencimento } = req.body;
-
-    if (!nome || !tipo) {
-        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
-    }
-
-    db.run(
-        "INSERT INTO cartoes (nome, tipo, limite, diaFechamento, diaVencimento) VALUES (?, ?, ?, ?, ?)",
-        [nome, tipo, limite, diaFechamento, diaVencimento],
-        function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ id: this.lastID, nome, tipo, limite, diaFechamento, diaVencimento });
-        }
-    );
-});
-
-// Atualizar transação
-app.put("/transacoes/:id", (req, res) => {
-    const { id } = req.params;
-    let { data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente, cartaoId } = req.body;
-
-    const formasPermitidas = ["dinheiro", "pix", "cartao"];
-    if (!formasPermitidas.includes(formaPagamento)) {
-        formaPagamento = "dinheiro";
-    }
-
-    if (formaPagamento !== "cartao") {
-        cartaoId = null;
-    }
-
-    function atualizar() {
-        db.run(
-            `UPDATE transacoes 
-            SET data = ?, tipo = ?, descricao = ?, valor = ?, categoria = ?, formaPagamento = ?, parcela = ?, recorrente = ?, cartaoId = ?
-            WHERE id = ?`,
-            [data, tipo, descricao, valor, categoria, formaPagamento, parcela, recorrente ? 1 : 0, cartaoId, id],
-            function (err) {
-                if (err) return res.status(500).json({ error: err.message });
-                if (this.changes === 0) {
-                    return res.status(404).json({ error: "Transação não encontrada" });
-                }
-                res.json({
-                    id: Number(id),
-                    data,
-                    tipo,
-                    descricao,
-                    valor,
-                    categoria,
-                    formaPagamento,
-                    parcela,
-                    recorrente,
-                    cartaoId
-                });
-            }
-        );
-    }
-
-    if (formaPagamento === "cartao" && cartaoId) {
-        db.get("SELECT id FROM cartoes WHERE id = ?", [cartaoId], (err, cartao) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (!cartao) return res.status(400).json({ error: "Cartão informado não existe." });
-            atualizar();
-        });
-    } else {
-        atualizar();
-    }
-});
-
-
-// Atualizar categoria
-app.put("/categorias/:id", (req, res) => {
-    const { id } = req.params;
-    const { nome, tipo } = req.body;
-
-    if (!nome || !tipo) {
-        return res.status(400).json({ erro: "Nome e tipo são obrigatórios" });
-    }
-
-    db.run(
-        "UPDATE categorias SET nome = ?, tipo = ? WHERE id = ?",
-        [nome, tipo, id],
-        function (err) {
-            if (err) {
-                console.error("Erro ao atualizar categoria:", err.message);
-                return res.status(500).json({ error: err.message });
-            }
-            // Caso nenhuma linha tenha sido alterada (id não existe)
-            if (this.changes === 0) {
-                return res.status(404).json({ error: "Categoria não encontrada" });
-            }
-            res.json({ id: Number(id), nome, tipo });
-        }
-    );
-});
-
-// Atualizar cartão
-app.put("/cartoes/:id", (req, res) => {
-    const { id } = req.params;
-    const { nome, tipo, limite, diaFechamento, diaVencimento } = req.body;
-
-    db.run(
-        "UPDATE cartoes SET nome = ?, tipo = ?, limite = ?, diaFechamento = ?, diaVencimento = ? WHERE id = ?",
-        [nome, tipo, limite, diaFechamento, diaVencimento, id],
-        function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: Number(id), nome, tipo, limite, diaFechamento, diaVencimento });
-        }
-    );
-});
-
-// Excluir transação
-app.delete("/transacoes/:id", (req, res) => {
-    const { id } = req.params;
-    db.run("DELETE FROM transacoes WHERE id = ?", id, function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ deleted: this.changes });
-    });
-});
-
-// Excluir categoria
-app.delete("/categorias/:id", (req, res) => {
-    const { id } = req.params;
-
-    db.run("DELETE FROM categorias WHERE id = ?", id, function (err) {
-        if (err) {
-            console.error("Erro ao excluir categoria:", err.message);
-            return res.status(500).json({ error: err.message });
-        }
-
-        if (this.changes === 0) {
-            return res.status(404).json({ error: "Categoria não encontrada" });
-        }
-
-        res.json({ sucesso: true, id: Number(id) });
-    });
-});
-
-// Excluir cartão
-app.delete("/cartoes/:id", (req, res) => {
-    const { id } = req.params;
-    db.run("DELETE FROM cartoes WHERE id = ?", id, function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ deleted: this.changes });
-    });
-});
+db.run(`
+  CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    email TEXT NOT NULL,
+    rendaMensal REAL DEFAULT 0,
+    metaEconomia REAL DEFAULT 0,
+    foto TEXT
+  )
+`);
 
 // Servidor
-app.listen(5000, () => {
-    console.log("Servidor rodando em http://localhost:5000");
-});
+app.listen(5000, () => console.log("Servidor rodando em http://localhost:5000"));

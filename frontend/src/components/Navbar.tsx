@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { BsHouse, BsArrowLeftRight, BsBarChart, BsCashCoin, BsList, BsX } from "react-icons/bs";
+import { BsHouse, BsArrowLeftRight, BsBarChart, BsCashCoin, BsList, BsX, BsFillPersonFill } from "react-icons/bs";
 
 import "./Navbar.css";
 
@@ -32,6 +32,9 @@ const Navbar = () => {
         </NavLink>
         <NavLink to="/relatorios" onClick={() => setMenuAberto(false)}>
           <BsBarChart className="icon" />Relatórios
+        </NavLink>
+        <NavLink to="/perfil" onClick={() => setMenuAberto(false)}>
+          <BsFillPersonFill className="icon" />Perfil
         </NavLink>
       </div>
     </nav>
