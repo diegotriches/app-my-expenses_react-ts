@@ -35,6 +35,23 @@ function Home({ transacoes }: Props) {
   const [cartoes, setCartoes] = useState<Cartao[]>([]);
   const [faturasCartoes, setFaturasCartoes] = useState<FaturaCartao[]>([]);
 
+  const [nomeUsuario, setNomeUsuario] = useState<string>("");
+
+  // Buscar usuário no backend
+  useEffect(() => {
+    axios.get("http://localhost:5000/usuarios")
+      .then(res => {
+        if (res.data && res.data.nome) {
+          // Caso o endpoint retorne um único usuário
+          setNomeUsuario(res.data.nome);
+        } else if (Array.isArray(res.data) && res.data.length > 0) {
+          // Caso o endpoint retorne uma lista
+          setNomeUsuario(res.data[0].nome);
+        }
+      })
+      .catch(err => console.error("Erro ao carregar dados do usuário:", err));
+  }, []);
+
   // Buscar cartões no backend
   useEffect(() => {
     axios.get("http://localhost:5000/cartoes")
@@ -154,6 +171,8 @@ function Home({ transacoes }: Props) {
     <>
       <PeriodoSelector />
       <div id="home-page">
+        <h1>Bem-vindo{nomeUsuario ? `, ${nomeUsuario}` : ""}!</h1>
+        <h3>Gerencie suas finanças pessoais de forma prática e organizada.</h3>
         <div className="faturas-cartoes">
           <h4>Cartões</h4>
           {faturasCartoes.length === 0 ? (

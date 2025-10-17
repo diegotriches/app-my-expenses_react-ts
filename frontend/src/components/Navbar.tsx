@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+
 import { BsHouse, BsArrowLeftRight, BsBarChart, BsCashCoin, BsList, BsX, BsFillPersonFill } from "react-icons/bs";
 
 import "./Navbar.css";
 
 const Navbar = () => {
   const [menuAberto, setMenuAberto] = useState(false);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
 
   const toggleMenu = () => {
     setMenuAberto(!menuAberto);
   };
+
+  // Buscar a foto do usuário ao carregar o Navbar
+  useEffect(() => {
+    axios.get("http://localhost:5000/usuarios")
+      .then(res => {
+        if (res.data && res.data.foto) {
+          setFotoPerfil(`http://localhost:5000${res.data.foto}`);
+        }
+      })
+      .catch(err => console.error("Erro ao carregar foto do usuário:", err));
+  }, []);
 
   return (
     <nav className="navbar">
@@ -34,7 +48,11 @@ const Navbar = () => {
           <BsBarChart className="icon" />Relatórios
         </NavLink>
         <NavLink to="/perfil" onClick={() => setMenuAberto(false)}>
-          <BsFillPersonFill className="icon" />Perfil
+          {fotoPerfil ? (
+            <img src={fotoPerfil} alt="Perfil" className="foto-perfil" />
+          ) : (
+            <BsFillPersonFill/>
+          )}
         </NavLink>
       </div>
     </nav>

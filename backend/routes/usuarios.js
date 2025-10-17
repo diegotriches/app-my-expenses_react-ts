@@ -3,12 +3,20 @@ import sqlite3 from "sqlite3";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const router = express.Router();
 
 // Configuração para __dirname no ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Cria a pasta uploads se não existir
+const uploadDir = path.join(__dirname, "../uploads/");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+    console.log("Pasta 'uploads' criada automaticamente.");
+}
 
 // Configuração do multer (upload de imagens)
 const storage = multer.diskStorage({

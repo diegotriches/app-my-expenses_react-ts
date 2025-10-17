@@ -57,6 +57,20 @@
   cursor: pointer;
 }
 
+.foto-perfil {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.foto-perfil:hover {
+  transform: scale(1.05);
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .navbar {
