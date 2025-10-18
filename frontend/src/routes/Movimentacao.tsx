@@ -1,19 +1,47 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { Link } from 'react-router-dom';
 
 import { exportarCSV } from '../utils/exportCSV';
+import { importarCSV } from '../utils/importCSV';
 import { usePeriodo } from '../components/PeriodoContext';
 import type { Transacao } from '../types/transacao';
 import PeriodoSelector from "../components/PeriodoSelector";
 
-import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill, BsCreditCard2Back, BsCash, BsFillXDiamondFill, BsThreeDotsVertical, BsFiletypeCsv } from "react-icons/bs";
+import { BsFunnel, BsFunnelFill, BsPencil, BsFillTrash3Fill, BsCreditCard2Back, BsCash, BsFillXDiamondFill, BsThreeDotsVertical, BsFiletypeCsv, BsClockHistory, BsCloudUpload } from "react-icons/bs";
 
 import './Movimentacao.css'
 
 interface Props {
     transacoes: Transacao[];
     excluirTransacao: (id: number) => void;
+}
+
+const [resumoImportacao, setResumoImportacao] = useState<{
+    sucesso: boolean;
+    importadas?: number;
+    duplicadas?: number;
+    total?: number;
+    erro?: string;
+} | null>(null);
+
+const [importando, setImportando] = useState(false);
+
+async function importarCSVDialog() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = async (e: any) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImportando(true);
+            const resultado = await importarCSV(file);
+            setResumoImportacao(resultado);
+            setImportando(false);
+        }
+    };
+    input.click();
 }
 
 function Movimentacao({ transacoes, excluirTransacao }: Props) {
@@ -152,11 +180,11 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                         <button onClick={() => setMenuAberto(!menuAberto)}><BsThreeDotsVertical /></button>
                         {menuAberto && (
                             <div className="menu-opcoes">
-                                <button
-                                    onClick={() => exportarCSV(transacoes)}
-                                >
-                                    <BsFiletypeCsv />Exportar
+                                <button onClick={() => exportarCSV(transacoes)}><BsFiletypeCsv />Exportar</button>
+                                <button onClick={() => importarCSVDialog()}>
+                                    <BsCloudUpload /> Importar
                                 </button>
+                                <button onClick={() => navigate("/historico")}><BsClockHistory />Histórico</button>
                             </div>
                         )}
                     </div>
@@ -216,6 +244,42 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
                     )}
                 </div>
             </div>
+            <div id="history-link">
+                <p>Não encontrou alguma movimentação? Acesse aqui o <Link to="/historico" style={{ textDecoration: "underline", color: "blue" }}>
+                    histórico
+                </Link>{" "} completo.</p>
+            </div>
+            {importando && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <p>Importando movimentações, aguarde...</p>
+                        <div className="spinner"></div>
+                    </div>
+                </div>
+            )}
+
+            {resumoImportacao && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        {resumoImportacao.sucesso ? (
+                            <>
+                                <h3>✅ Importação concluída!</h3>
+                                <p>Total de registros no arquivo: <strong>{resumoImportacao.total}</strong></p>
+                                <p>Novas transações importadas: <strong>{resumoImportacao.importadas}</strong></p>
+                                <p>Ignoradas (duplicadas): <strong>{resumoImportacao.duplicadas}</strong></p>
+                            </>
+                        ) : (
+                            <>
+                                <h3>❌ Erro na importação</h3>
+                                <p>{resumoImportacao.erro}</p>
+                            </>
+                        )}
+                        <button className="btn-confirm" onClick={() => setResumoImportacao(null)}>
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            )}
         </>
     )
 }

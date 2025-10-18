@@ -171,7 +171,7 @@ function Home({ transacoes }: Props) {
     <>
       <PeriodoSelector />
       <div id="home-page">
-        <h1>Bem-vindo{nomeUsuario ? `, ${nomeUsuario}` : ""}!</h1>
+        <h1>Bem-vindo(a){nomeUsuario ? `, ${nomeUsuario}` : ""}!</h1>
         <h3>Gerencie suas finanças pessoais de forma prática e organizada.</h3>
         <div className="faturas-cartoes">
           <h4>Cartões</h4>
@@ -239,7 +239,7 @@ function Home({ transacoes }: Props) {
                 <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
                 <Legend />
                 <Bar dataKey="value" isAnimationActive>
-                  {dataBarChart.map((entry, index) => (
+                  {dataBarChart.map((_, index) => (
                     <Cell key={`bar-${index}`} fill={COLORS_BARRAS[index % COLORS_BARRAS.length]} />
                   ))}
                 </Bar>
@@ -261,7 +261,7 @@ function Home({ transacoes }: Props) {
                   dataKey="value"
                   label={({ name, value }) => `${name}: R$ ${(value ?? 0).toFixed(2)}`}
                 >
-                  {dataPieChart.map((entry, index) => (
+                  {dataPieChart.map((_, index) => (
                     <Cell key={`slice-${index}`} fill={COLORS_PIE[index % COLORS_PIE.length]} />
                   ))}
                 </Pie>

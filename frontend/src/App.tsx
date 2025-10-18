@@ -14,6 +14,7 @@ import Categorias from "./routes/Categorias";
 import Cartoes from "./routes/Cartoes";
 import FormMovimentacao from "./routes/FormMovimentacao";
 import FloatingButton from "./components/FloatingButton";
+import Historico from "./routes/Historico";
 
 function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
@@ -78,7 +79,7 @@ function App() {
                 excluirTransacao={excluirTransacao}
               />}
             />
-            <Route path="/relatorios" element={<Relatorios transacoes={transacoes} />} />
+            <Route path="/relatorios" element={<Relatorios />} />
             <Route
               path="/form-movimentacao/:id?"
               element={<FormMovimentacao
@@ -90,6 +91,7 @@ function App() {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/cartoes" element={<Cartoes />} />
+            <Route path="/historico" element={<Historico />} />
           </Routes>
           <FloatingButton />
         </BrowserRouter>

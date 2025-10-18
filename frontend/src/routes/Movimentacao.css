@@ -176,7 +176,6 @@
   color: #c62828;
 }
 
-/* Fundo escuro transparente */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -190,7 +189,6 @@
   z-index: 1000;
 }
 
-/* Caixa do modal */
 .modal-content {
   background: #fff;
   padding: 20px 30px;
@@ -202,7 +200,6 @@
   animation: fadeIn 0.25s ease;
 }
 
-/* Botões */
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -236,6 +233,64 @@
 .modal-buttons .btn-cancel:hover {
   background: #bbb;
 }
+
+#history-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.modal-content h3 {
+  margin-bottom: 12px;
+}
+
+.modal-content p {
+  margin: 6px 0;
+}
+
+.btn-confirm {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+.btn-confirm:hover {
+  background-color: #0056b3;
+}
+
+/* Spinner animado */
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  margin: 16px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 /* Ajustes responsivos */
 @media (max-width: 768px) {

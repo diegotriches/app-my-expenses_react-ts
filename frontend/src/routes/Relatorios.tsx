@@ -123,7 +123,7 @@ function Relatorios() {
                 data={dataCategorias}
                 cx="50%"
                 cy="50%"
-                label={({ name, value }) => `${name}: R$ ${value.toFixed(2)}`}
+                label={({ name, value }) => `${name}: R$ ${(value ?? 0).toFixed(2)}`}
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
