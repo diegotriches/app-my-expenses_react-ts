@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import api from "./services/api";
 
 import type { Transacao } from './types/transacao'
 import { PeriodoProvider } from "./components/PeriodoContext";
@@ -20,25 +20,24 @@ function App() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/transacoes")
-      .then((res) => {
-        if (Array.isArray(res.data)) setTransacoes(res.data);
-        else {
-          console.error("Resposta inesperada do backend:", res.data);
-          setTransacoes([]);
-        }
-      })
-      .catch((err) => {
-        console.error("Erro ao carregar transações:", err);
+  api.get("/transacoes")
+    .then((res) => {
+      if (Array.isArray(res.data)) setTransacoes(res.data);
+      else {
+        console.error("Resposta inesperada do backend:", res.data);
         setTransacoes([]);
-      });
-  }, []);
+      }
+    })
+    .catch((err) => {
+      console.error("Erro ao carregar transações:", err);
+      setTransacoes([]);
+    });
+}, []);
 
   // Adicionar nova transação
   const adicionarTransacao = async (nova: Transacao) => {
     try {
-      const res = await axios.post("http://localhost:5000/transacoes", nova);
+      const res = await api.post("/transacoes", nova);
       setTransacoes(prev => [...prev, res.data]);
     } catch (err) {
       console.error("Erro ao adicionar transação:", err);
@@ -48,7 +47,7 @@ function App() {
   // Editar transação existente
   const editarTransacao = async (atualizada: Transacao) => {
     try {
-      const res = await axios.put(`http://localhost:5000/transacoes/${atualizada.id}`, atualizada);
+      const res = await api.put(`/transacoes/${atualizada.id}`, atualizada);
       setTransacoes(prev => prev.map(t => t.id === atualizada.id ? res.data : t));
     } catch (err) {
       console.error("Erro ao editar transação:", err);
@@ -58,7 +57,7 @@ function App() {
   // Excluir transação
   const excluirTransacao = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:5000/transacoes/${id}`);
+      await api.delete(`/transacoes/${id}`);
       setTransacoes(prev => prev.filter(t => t.id !== id));
     } catch (err) {
       console.error("Erro ao excluir transação:", err);

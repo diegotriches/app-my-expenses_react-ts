@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../services/api";
 import type { Transacao } from "../types/transacao";
 
 export async function importarCSV(file: File) {
@@ -36,7 +36,7 @@ export async function importarCSV(file: File) {
         });
 
         // Buscar IDs já existentes
-        const { data: existentes } = await axios.get("http://localhost:5000/transacoes");
+        const { data: existentes } = await api.get("/transacoes");
         const idsExistentes = new Set(existentes.map((t: Transacao) => t.id));
 
         const novasMovimentacoes = movimentacoes.filter(
@@ -46,7 +46,7 @@ export async function importarCSV(file: File) {
 
         let importadas = 0;
         for (const mov of novasMovimentacoes) {
-            await axios.post("http://localhost:5000/transacoes", mov);
+            await api.post("/transacoes", mov);
             importadas++;
         }
 

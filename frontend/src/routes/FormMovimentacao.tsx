@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import type { Transacao } from '../types/transacao';
-import axios from "axios";
+import api from "../services/api";
 
 import { BsFloppy2Fill, BsArrowLeft, BsThreeDotsVertical } from "react-icons/bs";
 
@@ -37,15 +37,14 @@ function FormMovimentacao({ transacoes, adicionarTransacao, editarTransacao }: P
 
     // Carregar categorias do backend
     useEffect(() => {
-        fetch("http://localhost:5000/categorias")
-            .then(res => res.json())
-            .then(data => setCategorias(data))
+        api.get("/categorias")
+            .then(res => setCategorias(res.data))
             .catch(err => console.error("Erro ao carregar categorias:", err));
     }, []);
 
     // Carregar cartões do backend
     useEffect(() => {
-        axios.get("http://localhost:5000/cartoes")
+        api.get("/cartoes")
             .then(res => setCartoes(res.data))
             .catch(err => console.error("Erro ao carregar cartões:", err));
     }, []);

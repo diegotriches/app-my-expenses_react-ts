@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { Link } from 'react-router-dom';
 
+import api from '../services/api';
 import { exportarCSV } from '../utils/exportCSV';
 import { importarCSV } from '../utils/importCSV';
 import { usePeriodo } from '../components/PeriodoContext';
@@ -16,32 +16,6 @@ import './Movimentacao.css'
 interface Props {
     transacoes: Transacao[];
     excluirTransacao: (id: number) => void;
-}
-
-const [resumoImportacao, setResumoImportacao] = useState<{
-    sucesso: boolean;
-    importadas?: number;
-    duplicadas?: number;
-    total?: number;
-    erro?: string;
-} | null>(null);
-
-const [importando, setImportando] = useState(false);
-
-async function importarCSVDialog() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".csv";
-    input.onchange = async (e: any) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImportando(true);
-            const resultado = await importarCSV(file);
-            setResumoImportacao(resultado);
-            setImportando(false);
-        }
-    };
-    input.click();
 }
 
 function Movimentacao({ transacoes, excluirTransacao }: Props) {
@@ -61,8 +35,34 @@ function Movimentacao({ transacoes, excluirTransacao }: Props) {
 
     const [cartoes, setCartoes] = useState<{ id: number; nome: string; tipo: string }[]>([]);
 
+    const [resumoImportacao, setResumoImportacao] = useState<{
+        sucesso: boolean;
+        importadas?: number;
+        duplicadas?: number;
+        total?: number;
+        erro?: string;
+    } | null>(null);
+
+    const [importando, setImportando] = useState(false);
+
+    async function importarCSVDialog() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".csv";
+        input.onchange = async (e: any) => {
+            const file = e.target.files[0];
+            if (file) {
+                setImportando(true);
+                const resultado = await importarCSV(file);
+                setResumoImportacao(resultado);
+                setImportando(false);
+            }
+        };
+        input.click();
+    }
+
     useEffect(() => {
-        axios.get("http://localhost:5000/cartoes")
+        api.get("/cartoes")
             .then(res => setCartoes(res.data))
             .catch(err => console.error("Erro ao carregar cartões:", err));
     }, []);

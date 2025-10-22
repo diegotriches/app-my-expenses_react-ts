@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from "../services/api";
 
 import { BsPlusCircle, BsArrowLeft, BsPencil, BsTrash } from "react-icons/bs";
 
@@ -19,9 +20,8 @@ function Categorias() {
 
     const fetchCategorias = async () => {
         try {
-            const res = await fetch("http://localhost:5000/categorias");
-            const data = await res.json();
-            setCategorias(data);
+            const res = await api.get("/categorias");
+            setCategorias(res.data);
         } catch (err) {
             console.error("Erro ao carregar categorias:", err);
         }
@@ -33,25 +33,21 @@ function Categorias() {
         try {
             if (editandoId) {
                 // Editar categoria existente
-                const res = await fetch(`http://localhost:5000/categorias/${editandoId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nome: novaCategoria.trim(), tipo })
+                const res = await api.put(`/categorias/${editandoId}`, {
+                    nome: novaCategoria.trim(),
+                    tipo
                 });
-                const data = await res.json();
-                setCategorias(categorias.map(cat => cat.id === editandoId ? data : cat));
+                setCategorias(categorias.map(cat => cat.id === editandoId ? res.data : cat));
                 setEditandoId(null);
                 setNovaCategoria("");
                 alert("Categoria editada com sucesso!");
             } else {
                 // Adicionar nova categoria
-                const res = await fetch("http://localhost:5000/categorias", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nome: novaCategoria.trim(), tipo })
+                const res = await api.post("/categorias", {
+                    nome: novaCategoria.trim(),
+                    tipo
                 });
-                const data = await res.json();
-                setCategorias([...categorias, data]);
+                setCategorias([...categorias, res.data]);
                 setNovaCategoria("");
                 alert(`Categoria "${novaCategoria}" adicionada em ${tipo}`);
             }
@@ -72,7 +68,7 @@ function Categorias() {
         if (!window.confirm("Deseja realmente excluir esta categoria?")) return;
 
         try {
-            await fetch(`http://localhost:5000/categorias/${id}`, { method: "DELETE" });
+            await api.delete(`/categorias/${id}`);
             setCategorias(categorias.filter(cat => cat.id !== id));
             alert("Categoria excluída com sucesso!");
         } catch (error) {

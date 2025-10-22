@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 import { BsHouse, BsArrowLeftRight, BsBarChart, BsCashCoin, BsList, BsX, BsFillPersonFill } from "react-icons/bs";
 
@@ -16,10 +16,12 @@ const Navbar = () => {
 
   // Buscar a foto do usuário ao carregar o Navbar
   useEffect(() => {
-    axios.get("http://localhost:5000/usuarios")
+    api.get("/usuarios")
       .then(res => {
         if (res.data && res.data.foto) {
-          setFotoPerfil(`http://localhost:5000${res.data.foto}`);
+          setFotoPerfil(`${res.config.baseURL}${res.data.foto}`);
+        } else if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].foto) {
+          setFotoPerfil(`${res.config.baseURL}${res.data[0].foto}`);
         }
       })
       .catch(err => console.error("Erro ao carregar foto do usuário:", err));

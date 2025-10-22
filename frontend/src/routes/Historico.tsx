@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { Link } from "react-router-dom";
 
 import { BsArrowLeft } from "react-icons/bs";
@@ -20,7 +20,7 @@ function Historico() {
 
   const carregarHistoricoAno = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/transacoes");
+      const res = await api.get("/transacoes");
       const todas = res.data as Movimentacao[];
 
       // Filtra por ano e tipo

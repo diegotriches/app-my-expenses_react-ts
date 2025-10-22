@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, CartesianGrid } from "recharts";
 import type { Transacao } from "../types/transacao";
@@ -11,10 +11,10 @@ function Relatorios() {
   const [anoSelecionado, setAnoSelecionado] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
-    axios.get("http://localhost:5000/transacoes")
-      .then((res) => setTransacoes(res.data))
-      .catch((err) => console.error("Erro ao carregar transações:", err));
-  }, []);
+  api.get("/transacoes")
+    .then((res) => setTransacoes(res.data))
+    .catch((err) => console.error("Erro ao carregar transações:", err));
+}, []);
 
   const transacoesAno = transacoes.filter((t) => new Date(t.data).getFullYear() === anoSelecionado);
 

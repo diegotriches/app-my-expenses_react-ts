@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { AxiosError } from "axios";
 import { useNavigate } from 'react-router-dom';
+import api from "../services/api";
 
 import { BsPlusCircle, BsArrowLeft, BsTrash, BsPencil } from "react-icons/bs";
 
@@ -27,9 +28,9 @@ function Cartoes() {
 
   // Carregar cartões
   useEffect(() => {
-    axios.get("http://localhost:5000/cartoes")
+    api.get<Cartao[]>("/cartoes")
       .then(res => setCartoes(res.data))
-      .catch(err => console.error("Erro ao carregar cartões:", err));
+      .catch((err: AxiosError) => console.error("Erro ao carregar cartões:", err.message));
   }, []);
 
   // Adicionar ou atualizar cartão
@@ -46,24 +47,20 @@ function Cartoes() {
 
     if (editandoId) {
       // Atualizar
-      axios
-        .put(`http://localhost:5000/cartoes/${editandoId}`, novoCartao)
+      api.put<Cartao>(`/cartoes/${editandoId}`, novoCartao)
         .then((res) => {
-          setCartoes(
-            cartoes.map((c) => (c.id === editandoId ? res.data : c))
-          );
+          setCartoes(cartoes.map((c) => (c.id === editandoId ? res.data : c)));
           resetForm();
         })
-        .catch((err) => console.error("Erro ao editar cartão:", err));
+        .catch((err: AxiosError) => console.error("Erro ao editar cartão:", err.message));
     } else {
       // Adicionar
-      axios
-        .post("http://localhost:5000/cartoes", novoCartao)
+      api.post<Cartao>("/cartoes", novoCartao)
         .then((res) => {
           setCartoes([...cartoes, res.data]);
           resetForm();
         })
-        .catch((err) => console.error("Erro ao adicionar cartão:", err));
+        .catch((err: AxiosError) => console.error("Erro ao adicionar cartão:", err.message));
     }
   };
 
@@ -81,12 +78,11 @@ function Cartoes() {
   const excluirCartao = (id: number) => {
     if (!window.confirm("Deseja realmente excluir este cartão?")) return;
 
-    axios
-      .delete(`http://localhost:5000/cartoes/${id}`)
+    api.delete(`/cartoes/${id}`)
       .then(() => {
         setCartoes(cartoes.filter((c) => c.id !== id));
       })
-      .catch((err) => console.error("Erro ao excluir cartão:", err));
+      .catch((err: AxiosError) => console.error("Erro ao excluir cartão:", err.message));
   };
 
   // Resetar formulário

@@ -1,6 +1,6 @@
 import { usePeriodo } from '../components/PeriodoContext';
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 import type { Transacao } from "../types/transacao";
 import PeriodoSelector from "../components/PeriodoSelector";
@@ -39,31 +39,37 @@ function Home({ transacoes }: Props) {
 
   // Buscar usuário no backend
   useEffect(() => {
-    axios.get("http://localhost:5000/usuarios")
-      .then(res => {
+    const fetchUsuario = async () => {
+      try {
+        const res = await api.get("/usuarios");
         if (res.data && res.data.nome) {
-          // Caso o endpoint retorne um único usuário
           setNomeUsuario(res.data.nome);
         } else if (Array.isArray(res.data) && res.data.length > 0) {
-          // Caso o endpoint retorne uma lista
           setNomeUsuario(res.data[0].nome);
         }
-      })
-      .catch(err => console.error("Erro ao carregar dados do usuário:", err));
+      } catch (err) {
+        console.error("Erro ao carregar dados do usuário:", err);
+      }
+    };
+    fetchUsuario();
   }, []);
 
   // Buscar cartões no backend
   useEffect(() => {
-    axios.get("http://localhost:5000/cartoes")
-      .then((res) => {
+    const fetchCartoes = async () => {
+      try {
+        const res = await api.get("/cartoes");
         const dadosNormalizados = res.data.map((c: any) => ({
           ...c,
           tipo: c.tipo?.toLowerCase() ?? "debito",
           limite: c.limite ?? 0,
         }));
         setCartoes(dadosNormalizados);
-      })
-      .catch((err) => console.error("Erro ao carregar cartões:", err));
+      } catch (err) {
+        console.error("Erro ao carregar cartões:", err);
+      }
+    };
+    fetchCartoes();
   }, []);
 
   // Calcular faturas e limites
